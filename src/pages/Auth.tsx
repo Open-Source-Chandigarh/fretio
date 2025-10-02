@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import Header from '@/components/Header';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -55,6 +56,8 @@ const Auth = () => {
   };
 
   return (
+    <>
+    <Header></Header>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
@@ -108,8 +111,8 @@ const Auth = () => {
                   </div>
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button type="submit" className="w-full bg-orange-400" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin " />}
                   Sign In
                 </Button>
               </form>
@@ -177,7 +180,7 @@ const Auth = () => {
                   />
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-orange-400" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account
                 </Button>
@@ -191,6 +194,7 @@ const Auth = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
 
