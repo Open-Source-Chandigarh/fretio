@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle, Upload } from 'lucide-react';
+import Header from '@/components/Header';
 
 interface University {
   id: string;
@@ -146,6 +147,8 @@ const CompleteProfile = () => {
   const progress = step === 1 ? 50 : 100;
 
   return (
+    <>
+    <Header></Header>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
@@ -153,7 +156,10 @@ const CompleteProfile = () => {
           <CardDescription>
             Help us verify your identity and connect you with your hostel community
           </CardDescription>
-          <Progress value={progress} className="mt-4" />
+          <Progress 
+            value={progress} 
+            className="mt-4 [&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-orange-300" 
+          />
         </CardHeader>
         
         <CardContent>
@@ -227,14 +233,15 @@ const CompleteProfile = () => {
                 </div>
               </div>
 
-              <Button 
+                <Button 
                 onClick={handleProfileUpdate} 
-                className="w-full" 
+                className="w-full bg-orange-400 hover:bg-blue-300" 
                 disabled={loading || !profileData.university_id || !profileData.hostel_id}
-              >
+                size="lg"
+                >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Continue to Verification
-              </Button>
+                </Button>
             </div>
           )}
 
@@ -285,6 +292,7 @@ const CompleteProfile = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
 

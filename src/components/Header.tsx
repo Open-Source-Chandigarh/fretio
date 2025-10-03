@@ -135,10 +135,10 @@ const Header = () => {
                 {getVerificationBadge()}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-transparent transition-all duration-200 hover:scale-110">
+                      <Avatar className="h-8 w-8 transition-all duration-200">
                         <AvatarImage src={profile?.avatar_url} alt={profile?.full_name || 'User'} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white font-semibold">
                           {profile?.full_name?.charAt(0) || user.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
