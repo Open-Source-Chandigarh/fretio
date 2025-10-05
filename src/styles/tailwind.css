@@ -1,0 +1,16 @@
+@layer utilities {
+  .shine { position: relative; overflow: hidden; }
+  .shine::after {
+    content: ""; position: absolute; inset: -120% -60%;
+    background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%);
+    transform: translateX(-100%);
+  }
+  .shine:hover::after { animation: sweep 900ms ease-out forwards; }
+  @keyframes sweep { to { transform: translateX(100%); } }
+
+  .tilt { transition: transform .25s ease, box-shadow .25s ease; }
+  .tilt:hover { transform: translateY(-3px) rotate3d(1,1,0,2deg); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+}

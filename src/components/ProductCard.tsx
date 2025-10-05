@@ -30,25 +30,25 @@ interface ProductCardProps {
 }
 
 const conditionColors = {
-  "new": "bg-success/10 text-success border-success/20",
-  "like-new": "bg-primary/10 text-primary border-primary/20", 
-  "good": "bg-accent/10 text-accent border-accent/20",
-  "fair": "bg-warning/10 text-warning border-warning/20",
+  new: "bg-success/10 text-success border-success/20",
+  "like-new": "bg-primary/10 text-primary border-primary/20",
+  good: "bg-accent/10 text-accent border-accent/20",
+  fair: "bg-warning/10 text-warning border-warning/20",
 };
 
-const ProductCard = ({ 
+const ProductCard = ({
   id,
-  title, 
-  price, 
-  condition, 
-  images, 
-  seller, 
-  category, 
-  timeAgo, 
-  views = 0, 
+  title,
+  price,
+  condition,
+  images,
+  seller,
+  category,
+  timeAgo,
+  views = 0,
   isForRent = false,
   rentPricePerDay,
-  className 
+  className,
 }: ProductCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -59,7 +59,7 @@ const ProductCard = ({
       toast({
         title: "Authentication required",
         description: "Please log in to message sellers.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -68,7 +68,7 @@ const ProductCard = ({
       toast({
         title: "Error",
         description: "Unable to identify seller.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -77,7 +77,7 @@ const ProductCard = ({
       toast({
         title: "Cannot message yourself",
         description: "You cannot start a chat with your own product.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -85,27 +85,25 @@ const ProductCard = ({
     try {
       // Check if chat already exists
       const { data: existingChat } = await supabase
-        .from('chats')
-        .select('id')
-        .eq('product_id', id)
-        .eq('buyer_id', user.id)
-        .eq('seller_id', seller.id)
+        .from("chats")
+        .select("id")
+        .eq("product_id", id)
+        .eq("buyer_id", user.id)
+        .eq("seller_id", seller.id)
         .single();
 
       if (existingChat) {
         // Chat exists, navigate to messages
-        navigate('/messages');
+        navigate("/messages");
         return;
       }
 
       // Create new chat
-      const { error } = await supabase
-        .from('chats')
-        .insert({
-          product_id: id,
-          buyer_id: user.id,
-          seller_id: seller.id
-        });
+      const { error } = await supabase.from("chats").insert({
+        product_id: id,
+        buyer_id: user.id,
+        seller_id: seller.id,
+      });
 
       if (error) throw error;
 
@@ -114,13 +112,13 @@ const ProductCard = ({
         description: "You can now message the seller about this product.",
       });
 
-      navigate('/messages');
+      navigate("/messages");
     } catch (error) {
-      console.error('Error creating chat:', error);
+      console.error("Error creating chat:", error);
       toast({
         title: "Error",
         description: "Failed to start chat. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -129,99 +127,115 @@ const ProductCard = ({
   };
 
   return (
-    <div className={cn(
-      "group bg-card rounded-xl border shadow-fretio-sm hover:shadow-fretio-lg transition-all duration-200 overflow-hidden cursor-pointer",
-      className
-    )}>
-      {/* Image Section */}
-      <div className="relative aspect-square overflow-hidden" onClick={handleCardClick}>
-        <img 
+    <div
+      className={cn(
+        "group bg-card rounded-2xl border border-border/60 shadow-fretio-sm hover:shadow-fretio-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
+      )}
+    >
+      {/* Image */}
+      <div
+        className="relative aspect-square overflow-hidden"
+        onClick={handleCardClick}
+      >
+        <img
           src={images[0] || "/placeholder.svg"}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-110"
         />
-        
-        {/* Overlay Actions */}
-        <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="ghost" size="icon" className="h-8 w-8 bg-background/80 backdrop-blur">
-            <Heart className="h-4 w-4" />
+
+        {/* Floating Icons */}
+        <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 rounded-full bg-white/80 hover:bg-blue-100 border border-slate-200 shadow-sm"
+          >
+            <Heart className="h-4 w-4 text-amber-500" />
           </Button>
         </div>
 
         {/* Rent Badge */}
         {isForRent && (
-          <Badge className="absolute top-3 left-3 bg-accent text-accent-foreground">
+          <Badge className="absolute top-3 left-3 bg-amber-100 text-amber-600 border border-amber-200 shadow-sm">
             For Rent
           </Badge>
         )}
 
-        {/* Views Counter */}
-        <div className="absolute bottom-3 left-3 flex items-center space-x-1 bg-background/80 backdrop-blur rounded-full px-2 py-1 text-xs">
+        {/* Views */}
+        <div className="absolute bottom-3 left-3 flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-slate-600 shadow-sm">
           <Eye className="h-3 w-3" />
           <span>{views}</span>
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="p-4 space-y-3" onClick={handleCardClick}>
-        {/* Category & Condition */}
+      {/* Card Body */}
+      <div className="p-5 space-y-3" onClick={handleCardClick}>
+        {/* Category + Condition */}
         <div className="flex items-center justify-between">
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs bg-slate-100 border-slate-200 text-slate-600"
+          >
             {category}
           </Badge>
-          <Badge className={cn("text-xs border", conditionColors[condition])}>
-            {condition.charAt(0).toUpperCase() + condition.slice(1).replace('-', ' ')}
+          <Badge
+            className={cn(
+              "text-xs border rounded-full px-3 py-1 capitalize",
+              conditionColors[condition]
+            )}
+          >
+            {condition.replace("-", " ")}
           </Badge>
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-card-foreground line-clamp-2 leading-tight">
+        <h3 className="font-semibold text-lg text-slate-800 line-clamp-2 leading-snug">
           {title}
         </h3>
 
         {/* Price */}
         <div className="flex items-baseline space-x-2">
-          <span className="text-2xl font-bold text-primary">₹{price}</span>
+          <span className="text-2xl font-bold text-amber-600">₹{price}</span>
           {isForRent && rentPricePerDay && (
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-slate-500">
               / ₹{rentPricePerDay} per day
             </span>
           )}
         </div>
 
         {/* Seller Info */}
-        <div className="flex items-center justify-between pt-2 border-t">
+        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
           <div className="flex items-center space-x-2">
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-9 w-9 border border-slate-200">
               <AvatarFallback>
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4 text-slate-500" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="text-sm font-medium">{seller.name}</div>
-              <div className="text-xs text-muted-foreground">Room {seller.room}</div>
-              {seller.id && (
-                <UserRating userId={seller.id} size="sm" />
-              )}
+              <div className="text-sm font-medium text-slate-800">
+                {seller.name}
+              </div>
+              <div className="text-xs text-slate-500">Room {seller.room}</div>
+              {seller.id && <UserRating userId={seller.id} size="sm" />}
             </div>
           </div>
-          
-          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+
+          <div className="flex items-center space-x-1 text-xs text-slate-500">
             <Clock className="h-3 w-3" />
             <span>{timeAgo}</span>
           </div>
         </div>
 
-        {/* Action Button */}
-        <Button 
-          variant="outline" 
-          className="w-full group/btn hover:bg-primary hover:text-primary-foreground"
+        {/* Button */}
+        <Button
+          variant="outline"
+          className="w-full mt-3 border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             handleMessageSeller();
           }}
         >
-          <MessageCircle className="w-4 h-4 mr-2 group-hover/btn:animate-pulse" />
+          <MessageCircle className="w-4 h-4 mr-2" />
           Message Seller
         </Button>
       </div>
