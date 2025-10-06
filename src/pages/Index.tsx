@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
+import PersonalizedRecommendations from "@/components/PersonalizedRecommendations";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Users, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -107,30 +108,12 @@ const Index = () => {
 
         <section className="py-20 bg-gradient-to-b from-white to-blue-50/40">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
-              <div>
-                <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-amber-600 to-indigo-400 bg-clip-text text-transparent">
-                  Featured Products
-                </h2>
-                <p className="text-muted-foreground">
-                  Discover what’s trending in your hostel community
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                className="hidden md:flex border-amber-300 text-amber-600 hover:bg-amber-50 hover:border-amber-400"
-              >
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Card Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
-            </div>
+            <PersonalizedRecommendations
+              title="Discover Amazing Products"
+              subtitle="Trending items from your hostel community"
+              maxItems={8}
+              showTrending={true}
+            />
           </div>
         </section>
 

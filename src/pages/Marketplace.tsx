@@ -6,8 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/ProductCard";
 import Header from "@/components/Header";
+import AdvancedSearchFilters from "@/components/AdvancedSearchFilters";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import searchHistoryService from "@/services/searchHistoryService";
 import { Search, Filter, Grid3X3, List, Plus, MapPin, Clock, TrendingUp } from "lucide-react";
 
 interface Product {
@@ -49,11 +51,32 @@ const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [advancedFilters, setAdvancedFilters] = useState<any>(null);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, [user]);
+
+  useEffect(() => {
+    // Track search query in history
+    if (user && searchQuery.trim().length > 2) {
+      const timer = setTimeout(() => {
+        searchHistoryService.addSearchQuery({
+          user_id: user.id,
+          query: searchQuery,
+          filters: {
+            category: selectedCategory,
+            condition: selectedCondition,
+            sortBy: sortBy,
+            advancedFilters: advancedFilters
+          },
+          results_count: filteredProducts.length
+        });
+      }, 1000); // Debounce for 1 second
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, user, filteredProducts.length]);
 
   const fetchCategories = async () => {
     const { data } = await supabase
@@ -109,11 +132,49 @@ const Marketplace = () => {
       (product.condition === "like_new" && selectedCondition === "Like New") ||
       product.condition.toLowerCase().replace('_', ' ') === selectedCondition.toLowerCase();
     
+    // Apply advanced filters if set
+    if (advancedFilters) {
+      const price = product.sell_price || product.rent_price_per_day || 0;
+      const matchesPriceRange = price >= advancedFilters.priceRange[0] && price <= advancedFilters.priceRange[1];
+      const matchesAdvancedConditions = advancedFilters.conditions.length === 0 || 
+        advancedFilters.conditions.includes(product.condition);
+      const matchesAdvancedCategories = advancedFilters.categories.length === 0 || 
+        (product.categories && advancedFilters.categories.includes(product.categories.id));
+      const matchesListingTypes = advancedFilters.listingTypes.length === 0 || 
+        advancedFilters.listingTypes.includes(product.listing_type);
+      
+      return matchesSearch && matchesCategory && matchesCondition && 
+        matchesPriceRange && matchesAdvancedConditions && matchesAdvancedCategories && matchesListingTypes;
+    }
+    
     return matchesSearch && matchesCategory && matchesCondition;
   });
 
+  const handleAdvancedFiltersChange = (filters: any) => {
+    setAdvancedFilters(filters);
+    // Update sort if advanced filters include sort
+    if (filters.sortBy) {
+      const sortMapping: any = {
+        'recent': 'Recent',
+        'price_low': 'Price: Low to High',
+        'price_high': 'Price: High to Low',
+        'views': 'Most Viewed',
+        'distance': 'Recent' // We'll handle distance sorting later
+      };
+      setSortBy(sortMapping[filters.sortBy] || 'Recent');
+    }
+  };
+
+  const handleSearchHistorySelect = (query: string) => {
+    setSearchQuery(query);
+  };
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
+    const currentSort = advancedFilters?.sortBy ? 
+      { 'recent': 'Recent', 'price_low': 'Price: Low to High', 'price_high': 'Price: High to Low', 'views': 'Most Viewed' }[advancedFilters.sortBy] || sortBy 
+      : sortBy;
+      
+    switch (currentSort) {
       case "Price: Low to High":
         const priceA = a.sell_price || a.rent_price_per_day || 0;
         const priceB = b.sell_price || b.rent_price_per_day || 0;
@@ -241,6 +302,14 @@ const Marketplace = () => {
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Advanced Filters */}
+            <AdvancedSearchFilters
+              onFiltersChange={handleAdvancedFiltersChange}
+              onSearchHistorySelect={handleSearchHistorySelect}
+              categories={categories.filter(c => c.id !== 'all')}
+              initialFilters={advancedFilters}
+            />
           </div>
 
           {/* View Toggle & Active Filters */}
