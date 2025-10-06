@@ -6,11 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import Header from "@/components/Header";
+import BulkOperations from "@/components/BulkOperations";
+import InventoryDashboard from "@/components/InventoryDashboard";
+import LazyImage from "@/components/LazyImage";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Edit, Eye, Trash2, MoreVertical, Calendar, TrendingUp } from "lucide-react";
+import { Plus, Search, Edit, Eye, Trash2, MoreVertical, Calendar, TrendingUp, BarChart3 } from "lucide-react";
 
 interface MyProduct {
   id: string;
@@ -36,6 +40,8 @@ const MyProducts = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [showInventoryDashboard, setShowInventoryDashboard] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -221,12 +227,32 @@ const MyProducts = () => {
                 <SelectItem value="draft">Draft</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              variant="outline"
+              size="default"
+              onClick={() => setShowInventoryDashboard(!showInventoryDashboard)}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              {showInventoryDashboard ? "Hide" : "Show"} Inventory
+            </Button>
           </div>
 
           <div className="flex items-center justify-between mt-4">
-            <Badge variant="secondary">
-              {filteredProducts.length} results
-            </Badge>
+            <div className="flex items-center space-x-4">
+              <Badge variant="secondary">
+                {filteredProducts.length} results
+              </Badge>
+              <BulkOperations
+                selectedProducts={selectedProducts}
+                onClearSelection={() => {
+                  setSelectedProducts(new Set());
+                  fetchMyProducts();
+                }}
+                onRefresh={fetchMyProducts}
+                allProducts={products}
+              />
+            </div>
             {searchQuery && (
               <Button 
                 variant="ghost" 
@@ -238,6 +264,11 @@ const MyProducts = () => {
             )}
           </div>
         </div>
+
+        {/* Inventory Dashboard */}
+        {showInventoryDashboard && !loading && (
+          <InventoryDashboard products={products} />
+        )}
 
         {/* Products Grid */}
         {loading ? (
@@ -261,14 +292,30 @@ const MyProducts = () => {
                              "/placeholder.svg";
 
               return (
-                <Card key={product.id} className="group hover:shadow-fretio-lg transition-shadow">
+                <Card key={product.id} className="group hover:shadow-fretio-lg transition-shadow relative">
+                  <div className="absolute top-4 left-4 z-10">
+                    <Checkbox
+                      checked={selectedProducts.has(product.id)}
+                      onCheckedChange={(checked) => {
+                        const newSelected = new Set(selectedProducts);
+                        if (checked) {
+                          newSelected.add(product.id);
+                        } else {
+                          newSelected.delete(product.id);
+                        }
+                        setSelectedProducts(newSelected);
+                      }}
+                      className="bg-white border-2"
+                    />
+                  </div>
                   <CardContent className="p-0">
                     {/* Image */}
                     <div className="relative aspect-square overflow-hidden rounded-t-xl">
-                      <img 
+                      <LazyImage 
                         src={mainImage}
                         alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                       
                       {/* Status Badge */}
