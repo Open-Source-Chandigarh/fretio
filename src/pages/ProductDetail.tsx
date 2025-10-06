@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import UserRating from "@/components/UserRating";
+import SimilarProducts from "@/components/SimilarProducts";
+import UsersAlsoViewed from "@/components/UsersAlsoViewed";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -681,7 +683,22 @@ const ProductDetail = () => {
           </Card>
         )}
 
-        {/* Similar Products could go here in the future */}
+        {/* Recommendation Sections */}
+        {product && id && (
+          <>
+            <div className="mb-8">
+              <SimilarProducts
+                productId={id}
+                currentProductCategory={product.categories?.name}
+                currentProductPrice={product.sell_price || product.rent_price_per_day || undefined}
+              />
+            </div>
+            
+            <div className="mb-8">
+              <UsersAlsoViewed productId={id} />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
