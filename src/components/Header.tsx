@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ThemeToggle } from "./ThemeToggle";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,7 +74,7 @@ const Header = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 dark:bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm transition-all">
       <div className="container mx-auto px-5">
         <div className="flex h-16 items-center justify-between">
           {/* LOGO */}
@@ -98,6 +99,7 @@ const Header = () => {
 
           {/* DESKTOP ACTIONS */}
           <div className="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
             {user ? (
               <>
                 {/* Avatar + Menu */}
@@ -185,7 +187,7 @@ const Header = () => {
 
         {/* MOBILE MENU */}
         {isMenuOpen && (
-          <div className="md:hidden border-t mt-2 py-4 space-y-4 bg-white/80 backdrop-blur-md rounded-b-2xl shadow-inner">
+          <div className="md:hidden border-t mt-2 py-4 space-y-4 bg-background/95 dark:bg-background/98 backdrop-blur-md rounded-b-2xl shadow-lg">
             <nav className="flex flex-col space-y-3 text-slate-600">
               <NavLink to="/marketplace" label="Browse" icon={Search} />
               <NavLink to="/my-products" label="My Listings" icon={ShoppingBag} />
