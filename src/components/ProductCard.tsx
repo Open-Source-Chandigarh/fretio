@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import UserRating from "./UserRating";
+import LazyImage from "./LazyImage";
 
 interface ProductCardProps {
   id: string;
@@ -137,10 +138,11 @@ const ProductCard = ({
         className="relative aspect-square overflow-hidden"
         onClick={handleCardClick}
       >
-        <img
+        <LazyImage
           src={images[0] || "/placeholder.svg"}
           alt={title}
-          className="w-full h-full object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full rounded-t-2xl transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
         />
 
         {/* Floating Icons */}

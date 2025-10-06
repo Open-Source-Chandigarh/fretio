@@ -12,7 +12,8 @@ import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Plus, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
+import { compressImage } from "@/lib/imageUtils";
 
 interface Category {
   id: string;
@@ -57,7 +58,7 @@ const CreateProduct = () => {
     if (data) setCategories(data);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (selectedImages.length + files.length > 5) {
       toast({
@@ -68,16 +69,53 @@ const CreateProduct = () => {
       return;
     }
 
-    setSelectedImages(prev => [...prev, ...files]);
-    
-    // Create preview URLs
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(prev => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
+    // Show processing toast
+    toast({
+      title: "Processing images...",
+      description: "Optimizing your images for best quality",
     });
+
+    try {
+      const compressedFiles: File[] = [];
+      const previewUrls: string[] = [];
+
+      for (const file of files) {
+        // Compress each image
+        const { file: compressedFile } = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.85,
+          convertToWebP: false // Keep original format for now
+        });
+        
+        compressedFiles.push(compressedFile);
+        
+        // Create preview URL
+        const reader = new FileReader();
+        await new Promise<void>((resolve) => {
+          reader.onload = (e) => {
+            previewUrls.push(e.target?.result as string);
+            resolve();
+          };
+          reader.readAsDataURL(compressedFile);
+        });
+      }
+
+      setSelectedImages(prev => [...prev, ...compressedFiles]);
+      setImagePreview(prev => [...prev, ...previewUrls]);
+      
+      toast({
+        title: "Images ready",
+        description: `${compressedFiles.length} images optimized successfully`,
+      });
+    } catch (error) {
+      console.error('Error processing images:', error);
+      toast({
+        title: "Error processing images",
+        description: "Failed to optimize images. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const removeImage = (index: number) => {
@@ -91,11 +129,32 @@ const CreateProduct = () => {
       const fileName = `${productId}_${index}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
+      // Upload original image
       const { error: uploadError } = await supabase.storage
         .from('product-images')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
+
+      // Also create and upload WebP version if possible
+      try {
+        const { webpFile } = await compressImage(file, {
+          convertToWebP: true,
+          quality: 0.85
+        });
+        
+        if (webpFile) {
+          const webpFileName = `${productId}_${index}.webp`;
+          const webpFilePath = `${user?.id}/${webpFileName}`;
+          
+          await supabase.storage
+            .from('product-images')
+            .upload(webpFilePath, webpFile);
+        }
+      } catch (error) {
+        console.error('Error creating WebP version:', error);
+        // Continue even if WebP creation fails
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
