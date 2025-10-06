@@ -12,15 +12,20 @@ const TypeLine = ({ words }: { words: string[] }) => {
   const [dir, setDir] = useState<"f" | "b">("f");
   useEffect(() => {
     const full = words[i % words.length];
-    const t = setTimeout(() => {
-      if (dir === "f" && text.length < full.length) setText(full.slice(0, text.length + 1));
-      else if (dir === "f") setDir("b");
-      else if (dir === "b" && text.length > 0) setText(full.slice(0, text.length - 1));
-      else {
-        setDir("f");
-        setI(i + 1);
-      }
-    }, dir === "f" ? 60 : 40);
+    const t = setTimeout(
+      () => {
+        if (dir === "f" && text.length < full.length)
+          setText(full.slice(0, text.length + 1));
+        else if (dir === "f") setDir("b");
+        else if (dir === "b" && text.length > 0)
+          setText(full.slice(0, text.length - 1));
+        else {
+          setDir("f");
+          setI(i + 1);
+        }
+      },
+      dir === "f" ? 60 : 40
+    );
     return () => clearTimeout(t);
   }, [text, dir, i, words]);
   return (
@@ -57,15 +62,15 @@ const HeroSection = () => {
 
             {/* Title */}
             <div>
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight text-slate-900">
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight text-gray-600">
                 Your Hostel’s{" "}
                 <span className="block bg-gradient-hero bg-clip-text text-transparent">
                   Marketplace
                 </span>
               </h1>
               <p className="mt-5 text-lg md:text-xl text-slate-600 max-w-xl leading-relaxed">
-                Buy, sell, and rent items with verified students — fast, friendly, and secure.{" "}
-                <br />
+                Buy, sell, and rent items with verified students — fast,
+                friendly, and secure. <br />
                 <TypeLine
                   words={[
                     "Smart & Secure",
@@ -98,29 +103,48 @@ const HeroSection = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-6 pt-10 text-center">
-              <div className="rounded-xl p-4 hover:bg-slate-50 transition">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-teal-100 mb-3">
-                  <Users className="w-6 h-6 text-teal-600" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 text-center">
+              <div className="rounded-xl p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-teal-100 to-teal-200 mb-3 animate-bounce-slow">
+                  <Users className="w-7 h-7 text-teal-600" />
                 </div>
-                <div className="font-semibold text-slate-800">Community</div>
+                <div className="font-semibold text-slate-800 text-lg">
+                  Community
+                </div>
                 <div className="text-xs text-slate-500">Hostel Only</div>
               </div>
-              <div className="rounded-xl p-4 hover:bg-slate-50 transition">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 mb-3">
-                  <ShieldCheck className="w-6 h-6 text-indigo-600" />
+
+              <div className="rounded-xl p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 mb-3 animate-bounce-slow">
+                  <ShieldCheck className="w-7 h-7 text-indigo-600" />
                 </div>
-                <div className="font-semibold text-slate-800">Verified</div>
+                <div className="font-semibold text-slate-800 text-lg">
+                  Verified
+                </div>
                 <div className="text-xs text-slate-500">Student IDs</div>
               </div>
-              <div className="rounded-xl p-4 hover:bg-slate-50 transition">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-3">
-                  <Zap className="w-6 h-6 text-amber-500" />
+
+              <div className="rounded-xl p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 mb-3 animate-bounce-slow">
+                  <Zap className="w-7 h-7 text-amber-500" />
                 </div>
-                <div className="font-semibold text-slate-800">Instant</div>
+                <div className="font-semibold text-slate-800 text-lg">
+                  Instant
+                </div>
                 <div className="text-xs text-slate-500">Face-to-Face</div>
               </div>
             </div>
+
+            <style>
+              {`
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .animate-bounce-slow {
+    animation: bounce-slow 2s infinite;
+  }`}
+            </style>
           </motion.div>
 
           {/* RIGHT SIDE IMAGE + FLOATING CARDS */}
@@ -151,7 +175,9 @@ const HeroSection = () => {
                   A+
                 </div>
                 <div>
-                  <div className="text-xs font-semibold text-slate-800">Sarah M.</div>
+                  <div className="text-xs font-semibold text-slate-800">
+                    Sarah M.
+                  </div>
                   <div className="text-xs text-slate-500">Room 204</div>
                 </div>
               </div>
@@ -175,7 +201,9 @@ const HeroSection = () => {
                 <span className="text-lg text-amber-500">📚</span> Textbook
               </div>
               <div className="text-sm font-bold text-emerald-600">₹350</div>
-              <div className="text-xs text-slate-500 mt-1">Hostel A • 2m ago</div>
+              <div className="text-xs text-slate-500 mt-1">
+                Hostel A • 2m ago
+              </div>
             </motion.div>
           </motion.div>
         </div>

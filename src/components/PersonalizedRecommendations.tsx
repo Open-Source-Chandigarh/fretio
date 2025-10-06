@@ -49,30 +49,23 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
 
   useEffect(() => {
     fetchRecommendations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchRecommendations = async () => {
     try {
       setLoading(true);
-      
       if (user) {
-        // Fetch personalized recommendations for logged-in users
         const personalizedRecs = await recommendationService.getPersonalizedRecommendations(
           user.id,
           maxItems
         );
-        setRecommendations(personalizedRecs as Product[]);
+        setRecommendations(personalizedRecs as unknown as Product[]);
       }
-      
       if (showTrending || !user) {
-        // Always fetch trending products
         const trending = await recommendationService.getTrendingProducts(maxItems);
-        setTrendingProducts(trending as Product[]);
-        
-        // If user is not logged in, show trending as recommendations
-        if (!user) {
-          setRecommendations(trending as Product[]);
-        }
+        setTrendingProducts(trending as unknown as Product[]);
+        if (!user) setRecommendations(trending as unknown as Product[]);
       }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
@@ -81,20 +74,27 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
     }
   };
 
-  const handleRefresh = () => {
-    fetchRecommendations();
-  };
+  const handleRefresh = () => fetchRecommendations();
 
   const formatProduct = (product: Product) => {
     const images = product.product_images
       .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : 0))
       .map((img) => img.image_url);
 
+    const conditionMap: Record<string, "new" | "like-new" | "good" | "fair"> = {
+      new: "new",
+      "like-new": "like-new",
+      good: "good",
+      fair: "fair",
+    };
+    const rawCondition = product.condition.replace("_", "-").toLowerCase();
+    const mappedCondition = conditionMap[rawCondition] ?? "good";
+
     return {
       id: product.id,
       title: product.title,
       price: product.sell_price || product.rent_price_per_day || 0,
-      condition: product.condition.replace("_", "-") as any,
+      condition: mappedCondition as "new" | "like-new" | "good" | "fair",
       images: images.length > 0 ? images : ["/placeholder.svg"],
       seller: {
         id: product.profiles?.user_id || product.seller_id,
@@ -117,16 +117,16 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-amber-500" />
+            <h2 className="text-2xl font-bold flex items-center gap-2 animate-fade-in">
+              <Sparkles className="h-6 w-6 text-amber-500 animate-pulse" />
               {title}
             </h2>
             <p className="text-muted-foreground">{subtitle}</p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="p-4">
+            <Card key={i} className="p-4 animate-pulse hover:scale-105 transition-transform">
               <Skeleton className="aspect-square mb-4 rounded-lg" />
               <Skeleton className="h-4 mb-2" />
               <Skeleton className="h-6 mb-2" />
@@ -141,7 +141,7 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
   if (!displayProducts.length && !loading) {
     return (
       <Card className="p-8 text-center">
-        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <Sparkles className="h-12 w-12 text-amber-400 mx-auto mb-4 animate-pulse" />
         <h3 className="text-lg font-semibold mb-2">No recommendations yet</h3>
         <p className="text-muted-foreground mb-4">
           {user
@@ -149,8 +149,9 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
             : "Sign in to get personalized recommendations"}
         </p>
         <Button
-          onClick={() => navigate(user ? "/marketplace" : "/login")}
+          onClick={() => navigate(user ? "/marketplace" : "/auth")}
           variant="default"
+          className="bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow hover:shadow-lg transition-all"
         >
           {user ? "Browse Marketplace" : "Sign In"}
         </Button>
@@ -159,79 +160,124 @@ const PersonalizedRecommendations: React.FC<PersonalizedRecommendationsProps> = 
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-amber-500" />
-            {title}
-          </h2>
-          <p className="text-muted-foreground">{subtitle}</p>
+    <section className="relative py-20 bg-gradient-to-b from-white to-blue-50 overflow-hidden">
+      {/* Floating sparkles behind cards */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className={`absolute w-3 h-3 bg-amber-300 rounded-full opacity-40 animate-float`}
+            style={{
+              top: `${Math.random() * 95}%`,
+              left: `${Math.random() * 95}%`,
+              animationDuration: `${3 + Math.random() * 3}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10 space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent animate-fade-in">
+              {title}
+            </h2>
+            <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">
+              {subtitle}
+            </p>
+          </div>
+
+          {/* Tab & Refresh */}
+          <div className="flex items-center gap-2">
+            {user && showTrending && (
+              <div className="flex rounded-full border bg-white shadow-md overflow-hidden">
+                <Button
+                  variant={activeTab === "personalized" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveTab("personalized")}
+                  className="rounded-l-full px-4"
+                >
+                  For You
+                </Button>
+                <Button
+                  variant={activeTab === "trending" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setActiveTab("trending")}
+                  className="rounded-r-full px-4 flex items-center gap-1"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  Trending
+                </Button>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              className="h-9 w-9 hover:bg-amber-100 transition-transform active:rotate-45"
+            >
+              <RefreshCw className="h-4 w-4 text-amber-500" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {user && showTrending && (
-            <div className="flex rounded-lg border p-1">
-              <Button
-                variant={activeTab === "personalized" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("personalized")}
-                className="rounded-md"
-              >
-                For You
-              </Button>
-              <Button
-                variant={activeTab === "trending" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("trending")}
-                className="rounded-md"
-              >
-                <TrendingUp className="h-4 w-4 mr-1" />
-                Trending
-              </Button>
+
+        {/* Trending Info */}
+        {activeTab === "trending" && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4" />
+            <span>Updated hourly based on community activity</span>
+          </div>
+        )}
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {displayProducts.slice(0, maxItems).map((product, index) => (
+            <div
+              key={product.id}
+              className="relative transform transition-all hover:scale-105 hover:shadow-xl rounded-2xl"
+            >
+              {index === 0 && activeTab === "trending" && (
+                <Badge className="absolute -top-3 -right-3 z-20 bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg animate-pulse">
+                  #1 Trending
+                </Badge>
+              )}
+              <ProductCard {...formatProduct(product)} />
             </div>
-          )}
+          ))}
+        </div>
+
+        {/* Explore Button */}
+        <div className="flex justify-center mt-8">
           <Button
-            variant="outline"
-            size="icon"
-            onClick={handleRefresh}
-            className="h-9 w-9"
+            variant="default"
+            size="lg"
+            onClick={() => navigate("/marketplace")}
+            className="bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg hover:scale-105 transition-transform"
           >
-            <RefreshCw className="h-4 w-4" />
+            Explore All Products
           </Button>
         </div>
       </div>
 
-      {activeTab === "trending" && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-4 w-4" />
-          <span>Updated hourly based on community activity</span>
-        </div>
-      )}
+      {/* Animations */}
+      <style>
+        {`
+          @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+          }
+          .animate-float { animation: float infinite ease-in-out; }
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {displayProducts.slice(0, maxItems).map((product, index) => (
-          <div key={product.id} className="relative">
-            {index === 0 && activeTab === "trending" && (
-              <Badge className="absolute -top-2 -right-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                #1 Trending
-              </Badge>
-            )}
-            <ProductCard {...formatProduct(product)} />
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => navigate("/marketplace")}
-          className="w-full sm:w-auto"
-        >
-          Explore All Products
-        </Button>
-      </div>
-    </div>
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in { animation: fade-in 0.6s ease-out forwards; }
+        `}
+      </style>
+    </section>
   );
 };
 
