@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import PersonalizedRecommendations from "@/components/PersonalizedRecommendations";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Users, Shield } from "lucide-react";
+import { ArrowRight, Sparkles, Users, Shield, Target } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -131,7 +131,7 @@ const Index = () => {
           <div className="container relative mx-auto px-4">
             {/* Section Header */}
             <div className="text-center mb-20 space-y-4">
-              <h2 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent drop-shadow-lg">
+              <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent drop-shadow-lg">
                 Why Choose Fretio?
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg md:text-xl">
@@ -141,9 +141,9 @@ const Index = () => {
             </div>
 
             {/* Feature Cards */}
-            <div className="grid md:grid-cols-3 gap-12">
+            <div className="grid md:grid-cols-4 gap-6">
               {/* Card 1 */}
-              <div className="group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
+              <div className="cursor-pointer group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-teal-100 to-teal-300 shadow-inner transition-transform duration-500 group-hover:scale-110 mx-auto">
                   <Users className="w-12 h-12 text-teal-700" />
                 </div>
@@ -157,7 +157,7 @@ const Index = () => {
               </div>
 
               {/* Card 2 */}
-              <div className="group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
+              <div className="cursor-pointer group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-100 to-indigo-300 shadow-inner transition-transform duration-500 group-hover:scale-110 mx-auto">
                   <Shield className="w-12 h-12 text-indigo-700" />
                 </div>
@@ -171,7 +171,7 @@ const Index = () => {
               </div>
 
               {/* Card 3 */}
-              <div className="group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
+              <div className="cursor-pointer group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-100 to-amber-300 shadow-inner transition-transform duration-500 group-hover:scale-110 mx-auto">
                   <Sparkles className="w-12 h-12 text-amber-700" />
                 </div>
@@ -183,6 +183,20 @@ const Index = () => {
                   instantly, and enjoy peace of mind.
                 </p>
               </div>
+              {/*  Card 4*/}
+               <div className="cursor-pointer group relative bg-white border border-gray-200 rounded-3xl p-10 text-center shadow-lg hover:shadow-2xl transition-transform duration-500 hover:-translate-y-2 hover:scale-105">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-100 to-indigo-300 shadow-inner transition-transform duration-500 group-hover:scale-110 mx-auto">
+                  <Target className="w-12 h-12 text-indigo-700" />
+                </div>
+                <h3 className="text-2xl font-bold mt-6 mb-3 text-slate-900">
+                 Personalised Recommendations
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                  Get personalized item suggestions based on what students in your hostel are looking for
+                   — save time and find what you need faster.
+                </p>
+              </div>
+
             </div>
           </div>
 
