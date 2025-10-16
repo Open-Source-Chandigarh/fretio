@@ -12,6 +12,13 @@
 
 **Repository**: https://github.com/Mayanks584/fretio.git
 
+## 🔧 Current Issues Fixed
+**Profile Completion Flow**:
+- Fixed "null value in column 'id'" error by adding id field to profile insert
+- Auto-verifying profiles after document upload (for development)
+- Users are marked as verified immediately to access all features
+- Note: In production, admin verification would be required
+
 ## ⚙️ Environment Setup
 **Required Dependencies**:
 ```bash

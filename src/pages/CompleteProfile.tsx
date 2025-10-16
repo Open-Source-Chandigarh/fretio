@@ -185,6 +185,22 @@ const CompleteProfile = () => {
         // If bucket doesn't exist, we'll just proceed without upload
         console.error('Storage upload error:', uploadError);
         if (uploadError.message.includes('bucket') || uploadError.message.includes('not found')) {
+          // Still update the profile even if storage fails
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ 
+              is_active: true,
+              verification_status: 'verified', // Auto-verify for development
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id);
+
+          if (updateError) {
+            console.error('Profile update error:', updateError);
+          }
+
+          await refreshProfile();
+
           toast({
             title: "Verification Submitted",
             description: "Your information has been saved. Document verification will be set up soon.",
@@ -211,6 +227,23 @@ const CompleteProfile = () => {
       } catch (verificationError) {
         console.log('Verification table might not exist yet');
       }
+
+      // Update profile to mark as active and verified (auto-verify for development)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          is_active: true,
+          verification_status: 'verified', // Auto-verify for development
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+      }
+
+      // Refresh the profile to get updated data
+      await refreshProfile();
 
       toast({
         title: "Document Uploaded",
