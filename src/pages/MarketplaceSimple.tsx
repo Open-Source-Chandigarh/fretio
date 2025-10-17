@@ -1,22 +1,55 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const MarketplaceSimple = () => {
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Get category from URL if present
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data } = await (supabase as any)
+        .from('categories')
+        .select('id, name')
+        .order('name');
+      
+      if (data) {
+        setCategories([{ id: 'all', name: 'All' }, ...data]);
+      }
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
 
   const fetchProducts = async () => {
     console.log('Fetching products...');
     try {
       const { data, error } = await (supabase as any)
         .from('products')
-        .select('*')
-        .eq('status', 'available');
+        .select(`
+          *,
+          categories (name)
+        `)
+        .eq('status', 'available')
+        .order('created_at', { ascending: false });
 
       console.log('Products response:', { data, error });
 
@@ -46,25 +79,95 @@ const MarketplaceSimple = () => {
     );
   }
 
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Simple Marketplace</h1>
-      <p className="mb-4">Found {products.length} products</p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <div key={product.id} className="border p-4 rounded">
-            <h3 className="font-semibold">{product.title}</h3>
-            <p>Price: ₹{product.sell_price || product.rent_price_per_day || 'N/A'}</p>
-            <p>Condition: {product.condition}</p>
-            <p>Status: {product.status}</p>
-          </div>
-        ))}
-      </div>
+  // Filter products based on category and search
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'All' || 
+      product.categories?.name === selectedCategory;
+    const matchesSearch = product.title?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-      {products.length === 0 && (
-        <p className="text-gray-500">No products available</p>
-      )}
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">Marketplace</h1>
+        
+        {/* Filters Section */}
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search Input */}
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            
+            {/* Category Filter */}
+            <select
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <p className="mb-4 text-gray-600">
+          Showing {filteredProducts.length} of {products.length} products
+          {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+        </p>
+        
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              {/* Product Image Placeholder */}
+              <div className="h-48 bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-400">No Image</span>
+              </div>
+              
+              {/* Product Details */}
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2">{product.title}</h3>
+                <p className="text-2xl font-bold text-blue-600 mb-2">
+                  ₹{product.sell_price || product.rent_price_per_day || 'N/A'}
+                  {product.rent_price_per_day && <span className="text-sm text-gray-500">/day</span>}
+                </p>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span className="capitalize">{product.condition?.replace('_', ' ')}</span>
+                  <span>{product.categories?.name || 'Uncategorized'}</span>
+                </div>
+                <button className="mt-3 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors">
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No products found</p>
+            {(selectedCategory !== 'All' || searchQuery) && (
+              <button 
+                className="mt-4 text-blue-500 hover:underline"
+                onClick={() => {
+                  setSelectedCategory('All');
+                  setSearchQuery('');
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
