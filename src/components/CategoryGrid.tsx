@@ -13,11 +13,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
+// Map to database category names from the migration
 const categories = [
   {
     id: "books",
-    name: "Books & Study",
+    name: "Books",
+    displayName: "Books & Study",
     icon: BookOpen,
     count: 234,
     color: "from-teal-200 to-teal-400",
@@ -25,6 +28,7 @@ const categories = [
   {
     id: "electronics",
     name: "Electronics",
+    displayName: "Electronics",
     icon: Laptop2,
     count: 156,
     color: "from-indigo-200 to-indigo-400",
@@ -32,13 +36,15 @@ const categories = [
   {
     id: "clothing",
     name: "Clothing",
+    displayName: "Clothing",
     icon: Shirt,
     count: 89,
     color: "from-rose-200 to-rose-400",
   },
   {
     id: "gaming",
-    name: "Gaming",
+    name: "Music", // Using Music category for gaming items
+    displayName: "Gaming",
     icon: Gamepad2,
     count: 67,
     color: "from-green-200 to-green-400",
@@ -46,34 +52,48 @@ const categories = [
   {
     id: "furniture",
     name: "Furniture",
+    displayName: "Furniture",
     icon: Home,
     count: 45,
     color: "from-orange-200 to-orange-400",
   },
   {
-    id: "vehicles",
-    name: "Bikes & Scooters",
-    icon: Bike,
-    count: 23,
-    color: "from-cyan-200 to-cyan-400",
-  },
-  {
-    id: "food",
-    name: "Food & Kitchen",
+    id: "kitchen",
+    name: "Kitchen",
+    displayName: "Kitchen & Food",
     icon: Coffee,
     count: 78,
     color: "from-amber-200 to-amber-400",
   },
   {
     id: "sports",
-    name: "Sports & Fitness",
+    name: "Sports",
+    displayName: "Sports & Fitness",
     icon: Dumbbell,
     count: 34,
     color: "from-lime-200 to-lime-400",
   },
+  {
+    id: "others",
+    name: "Others",
+    displayName: "Others",
+    icon: Bike,
+    count: 23,
+    color: "from-cyan-200 to-cyan-400",
+  },
 ];
 
 const CategoryGrid = () => {
+  const navigate = useNavigate();
+  
+  const handleCategoryClick = (categoryName: string) => {
+    // Navigate to marketplace with category filter
+    navigate(`/marketplace?category=${encodeURIComponent(categoryName)}`);
+  };
+  
+  const handleViewAllClick = () => {
+    navigate('/marketplace');
+  };
   return (
     <section className="relative py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
       {/* Background Decor */}
@@ -124,7 +144,8 @@ const CategoryGrid = () => {
                 <motion.div
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.97 }}
-                  className="relative group"
+                  className="relative group cursor-pointer"
+                  onClick={() => handleCategoryClick(category.name)}
                 >
                   {/* Card Container */}
                   <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
@@ -143,7 +164,7 @@ const CategoryGrid = () => {
 
                       <div className="text-center">
                         <h3 className="text-base font-semibold text-slate-800 mb-1">
-                          {category.name}
+                          {category.displayName}
                         </h3>
                         <p className="text-sm text-slate-500">
                           {category.count} items
@@ -173,6 +194,7 @@ const CategoryGrid = () => {
           <Button
             variant="outline"
             size="lg"
+            onClick={handleViewAllClick}
             className="group px-6 py-5 border-slate-300 text-slate-700 font-medium hover:bg-gradient-to-r hover:from-teal-500 hover:to-indigo-500 hover:text-white hover:border-transparent rounded-full transition-all shadow-sm"
           >
             View All Categories
