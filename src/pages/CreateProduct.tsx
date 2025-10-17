@@ -50,7 +50,7 @@ const CreateProduct = () => {
   }, []);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('categories')
       .select('id, name')
       .order('name');
@@ -170,9 +170,9 @@ const CreateProduct = () => {
 
     const imageData = await Promise.all(uploadPromises);
     
-    const { error } = await supabase
-      .from('product_images')
-      .insert(imageData);
+      const { error } = await (supabase as any)
+        .from('product_images')
+        .insert(imageData);
 
     if (error) throw error;
   };
@@ -226,7 +226,7 @@ const CreateProduct = () => {
         is_featured: formData.is_featured
       };
 
-      const { data: product, error: productError } = await supabase
+      const { data: product, error: productError } = await (supabase as any)
         .from('products')
         .insert(productData)
         .select()

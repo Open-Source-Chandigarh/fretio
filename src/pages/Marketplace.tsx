@@ -22,13 +22,8 @@ interface Product {
   listing_type: "sell" | "rent" | "both";
   views_count: number;
   created_at: string;
+  seller_id: string;
   categories: { name: string } | null;
-  profiles: {
-    user_id: string;
-    full_name: string | null;
-    room_number: string | null;
-    user_reviews_received: { rating: number }[];
-  } | null;
   product_images: { image_url: string; is_primary: boolean; sort_order: number }[];
 }
 
@@ -41,6 +36,7 @@ const conditions = ["All", "New", "Like New", "Good", "Fair"];
 const sortOptions = ["Recent", "Price: Low to High", "Price: High to Low", "Most Viewed"];
 
 const Marketplace = () => {
+  console.log('Marketplace component mounting');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
@@ -53,6 +49,7 @@ const Marketplace = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [advancedFilters, setAdvancedFilters] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for category parameter in URL
@@ -65,7 +62,7 @@ const Marketplace = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, [user]);
+  }, []); // Remove user dependency to load products immediately
 
   useEffect(() => {
     // Track search query in history
@@ -88,7 +85,7 @@ const Marketplace = () => {
   }, [searchQuery, user, filteredProducts.length]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('categories')
       .select('id, name')
       .order('name');
@@ -97,11 +94,13 @@ const Marketplace = () => {
   };
 
   const fetchProducts = async () => {
-    if (!user) return;
-    
+    console.log('fetchProducts called');
     setLoading(true);
+    setError(null);
     try {
-      const { data } = await supabase
+      // Simplified query without profiles dependency
+      // Using 'any' to bypass TypeScript types temporarily
+      const { data, error } = await (supabase as any)
         .from('products')
         .select(`
           id,
@@ -113,21 +112,30 @@ const Marketplace = () => {
           listing_type,
           views_count,
           created_at,
+          seller_id,
           categories (name),
-          profiles (
-            user_id,
-            full_name,
-            room_number,
-            user_reviews_received:user_reviews!reviewee_id (rating)
-          ),
           product_images (image_url, is_primary, sort_order)
         `)
         .eq('status', 'available')
         .order('created_at', { ascending: false });
 
-      if (data) setProducts(data as unknown as Product[]);
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      console.log('Supabase response:', { data, error });
+
+      if (error) {
+        console.error('Error fetching products:', error);
+        setError(error.message);
+        setProducts([]);
+      } else if (data) {
+        console.log('Fetched products:', data);
+        setProducts(data as unknown as Product[]);
+      } else {
+        console.log('No data returned');
+        setProducts([]);
+      }
+    } catch (error: any) {
+      console.error('Exception fetching products:', error);
+      setError(error.message || 'Unknown error');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -135,8 +143,10 @@ const Marketplace = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    // Direct category matching with exact database names
     const matchesCategory = selectedCategory === "All" || 
-      (product.categories?.name && selectedCategory === product.categories.name);
+      (product.categories?.name && product.categories.name === selectedCategory);
+    
     const matchesCondition = selectedCondition === "All" || 
       (product.condition === "like_new" && selectedCondition === "Like New") ||
       product.condition.toLowerCase().replace('_', ' ') === selectedCondition.toLowerCase();
@@ -200,13 +210,14 @@ const Marketplace = () => {
   });
 
   const formatProduct = (product: Product) => {
-    const images = product.product_images
-      .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
-      .map(img => img.image_url);
+    const images = product.product_images && product.product_images.length > 0
+      ? product.product_images
+          .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
+          .map(img => img.image_url)
+      : [];
 
-    const avgRating = product.profiles?.user_reviews_received?.length 
-      ? product.profiles.user_reviews_received.reduce((sum, r) => sum + r.rating, 0) / product.profiles.user_reviews_received.length
-      : 0;
+    // Default rating since we don't have profiles/reviews yet
+    const avgRating = 0;
 
     const timeAgo = new Date(product.created_at).toLocaleDateString();
 
@@ -215,11 +226,11 @@ const Marketplace = () => {
       title: product.title,
       price: product.sell_price || product.rent_price_per_day || 0,
       condition: product.condition.replace('_', '-') as "new" | "like-new" | "good" | "fair",
-      images: images.length > 0 ? images : ["/placeholder.svg"],
+      images: images.length > 0 ? images : ["https://via.placeholder.com/300"],
       seller: {
-        id: product.profiles?.user_id,
-        name: product.profiles?.full_name || "Anonymous",
-        room: product.profiles?.room_number || "N/A",
+        id: product.seller_id || "unknown",
+        name: "Student Seller", // Default name since we don't have profiles
+        room: "N/A",
         rating: avgRating
       },
       category: product.categories?.name || "Other",
@@ -365,6 +376,13 @@ const Marketplace = () => {
             </div>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            <strong>Error: </strong>{error}
+          </div>
+        )}
 
         {/* Products Grid */}
         {loading ? (

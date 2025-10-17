@@ -15,11 +15,11 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-// Map to database category names from the migration
+// Map to actual database category names from seed-categories.sql
 const categories = [
   {
     id: "books",
-    name: "Books",
+    name: "Books & Study Material", // Exact database name
     displayName: "Books & Study",
     icon: BookOpen,
     count: 234,
@@ -27,7 +27,7 @@ const categories = [
   },
   {
     id: "electronics",
-    name: "Electronics",
+    name: "Electronics", // Exact database name
     displayName: "Electronics",
     icon: Laptop2,
     count: 156,
@@ -35,7 +35,7 @@ const categories = [
   },
   {
     id: "clothing",
-    name: "Clothing",
+    name: "Clothing & Fashion", // Exact database name
     displayName: "Clothing",
     icon: Shirt,
     count: 89,
@@ -43,7 +43,7 @@ const categories = [
   },
   {
     id: "gaming",
-    name: "Music", // Using Music category for gaming items
+    name: "Gaming", // Exact database name
     displayName: "Gaming",
     icon: Gamepad2,
     count: 67,
@@ -51,7 +51,7 @@ const categories = [
   },
   {
     id: "furniture",
-    name: "Furniture",
+    name: "Furniture", // Exact database name
     displayName: "Furniture",
     icon: Home,
     count: 45,
@@ -59,7 +59,7 @@ const categories = [
   },
   {
     id: "kitchen",
-    name: "Kitchen",
+    name: "Kitchen & Appliances", // Exact database name
     displayName: "Kitchen & Food",
     icon: Coffee,
     count: 78,
@@ -67,7 +67,7 @@ const categories = [
   },
   {
     id: "sports",
-    name: "Sports",
+    name: "Sports & Fitness", // Exact database name
     displayName: "Sports & Fitness",
     icon: Dumbbell,
     count: 34,
@@ -75,7 +75,7 @@ const categories = [
   },
   {
     id: "others",
-    name: "Others",
+    name: "Other", // Exact database name
     displayName: "Others",
     icon: Bike,
     count: 23,
