@@ -17,7 +17,7 @@ const LazyImage = ({
   src,
   alt,
   className,
-  placeholderSrc = "/placeholder.svg",
+  placeholderSrc = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&blur=10",
   onLoad,
   onError,
   srcSet,
