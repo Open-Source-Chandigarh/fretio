@@ -14,7 +14,8 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Profile from "./pages/Profile";
 import DevTools from "./pages/DevTools";
 import AdminDashboard from "./pages/AdminDashboard";
-import Marketplace from "./pages/Marketplace";
+// import Marketplace from "./pages/Marketplace";
+import MarketplaceSimple from "./pages/MarketplaceSimple";
 import CreateProduct from "./pages/CreateProduct";
 import MyProducts from "./pages/MyProducts";
 import Messages from "./pages/Messages";
@@ -23,6 +24,7 @@ import Favorites from "./pages/Favorites";
 import Notifications from "./pages/Notifications";
 import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
+import TestSupabase from "./pages/TestSupabase";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import Footer from "./components/Footer";
 import MobileNavigation from "./components/MobileNavigation";
@@ -76,12 +78,9 @@ const AppInner = () => (
       />
       <Route
         path="/marketplace"
-        element={
-          <ProtectedRoute requireVerified>
-            <Marketplace />
-          </ProtectedRoute>
-        }
+        element={<MarketplaceSimple />}
       />
+      <Route path="/test-supabase" element={<TestSupabase />} />
       <Route
         path="/product/:id"
         element={
