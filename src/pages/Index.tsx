@@ -69,17 +69,16 @@ const Index = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      // Redirect authenticated users based on their profile status
-      if (!profile?.university_id || !profile?.hostel_id) {
+      // Only redirect if profile is incomplete
+      if (!profile || !profile.is_active || profile.verification_status !== "verified") {
         navigate("/complete-profile");
-      } else if (profile.verification_status === "verified") {
-        navigate("/marketplace");
       }
+      // Remove auto-redirect to marketplace - let users see the home page
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading or redirect for authenticated users
-  if (loading || (user && profile)) {
+  // Show loading state
+  if (loading) {
     return null;
   }
   return (
