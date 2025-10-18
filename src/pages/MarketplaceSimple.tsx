@@ -167,12 +167,27 @@ const MarketplaceSimple = () => {
   });
 
   // Format product data for ProductCard component
+  // Get default image based on category
+  const getDefaultProductImage = (category: string): string => {
+    const categoryImages: { [key: string]: string } = {
+      'Books & Study Material': 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600',
+      'Electronics': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=600',
+      'Clothing & Fashion': 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600',
+      'Furniture': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600',
+      'Sports & Fitness': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600',
+      'Gaming': 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=600',
+      'Kitchen & Appliances': 'https://images.unsplash.com/photo-1565452372282-0638fa9ad973?w=600',
+      'Other': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'
+    };
+    return categoryImages[category] || categoryImages['Other'];
+  };
+
   const formatProductForCard = (product: Product) => {
     const images = product.product_images && product.product_images.length > 0
       ? product.product_images
           .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
           .map(img => img.image_url)
-      : ["/placeholder.svg"];
+      : [getDefaultProductImage(product.categories?.name || 'Other')];
 
     const timeAgo = () => {
       const created = new Date(product.created_at);
