@@ -2,11 +2,32 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
+interface Product {
+  id: string;
+  title: string;
+  sell_price: number | null;
+  rent_price_per_day: number | null;
+  condition: string;
+  status: string;
+  created_at: string;
+  views_count?: number;
+  categories: {
+    name: string;
+  } | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
 const MarketplaceSimple = () => {
   const [searchParams] = useSearchParams();
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCondition, setSelectedCondition] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('Recent');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +47,7 @@ const MarketplaceSimple = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('categories')
         .select('id, name')
         .order('name');
@@ -42,7 +63,7 @@ const MarketplaceSimple = () => {
   const fetchProducts = async () => {
     console.log('Fetching products...');
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('products')
         .select(`
           *,
@@ -79,12 +100,38 @@ const MarketplaceSimple = () => {
     );
   }
 
-  // Filter products based on category and search
+  const conditions = ['All', 'New', 'Like New', 'Good', 'Fair'];
+  const sortOptions = ['Recent', 'Price: Low to High', 'Price: High to Low', 'Most Viewed'];
+
+  // Filter products based on category, condition and search
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || 
       product.categories?.name === selectedCategory;
     const matchesSearch = product.title?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesCondition = selectedCondition === 'All' ||
+      (product.condition === 'like_new' && selectedCondition === 'Like New') ||
+      product.condition?.toLowerCase().replace('_', ' ') === selectedCondition.toLowerCase();
+    return matchesCategory && matchesSearch && matchesCondition;
+  });
+
+  // Sort the filtered products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'Price: Low to High': {
+        const priceA = a.sell_price || a.rent_price_per_day || 0;
+        const priceB = b.sell_price || b.rent_price_per_day || 0;
+        return priceA - priceB;
+      }
+      case 'Price: High to Low': {
+        const priceA2 = a.sell_price || a.rent_price_per_day || 0;
+        const priceB2 = b.sell_price || b.rent_price_per_day || 0;
+        return priceB2 - priceA2;
+      }
+      case 'Most Viewed':
+        return (b.views_count || 0) - (a.views_count || 0);
+      default: // Recent
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
   });
 
   return (
@@ -114,18 +161,41 @@ const MarketplaceSimple = () => {
                 <option key={cat.id} value={cat.name}>{cat.name}</option>
               ))}
             </select>
+
+            {/* Condition Filter */}
+            <select
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedCondition}
+              onChange={(e) => setSelectedCondition(e.target.value)}
+            >
+              {conditions.map(cond => (
+                <option key={cond} value={cond}>{cond}</option>
+              ))}
+            </select>
+
+            {/* Sort Filter */}
+            <select
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {sortOptions.map(sort => (
+                <option key={sort} value={sort}>{sort}</option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Results Count */}
         <p className="mb-4 text-gray-600">
-          Showing {filteredProducts.length} of {products.length} products
+          Showing {sortedProducts.length} of {products.length} products
           {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+          {selectedCondition !== 'All' && ` - ${selectedCondition} condition`}
         </p>
         
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {sortedProducts.map((product) => (
             <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               {/* Product Image Placeholder */}
               <div className="h-48 bg-gray-200 flex items-center justify-center">
@@ -151,14 +221,16 @@ const MarketplaceSimple = () => {
           ))}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {sortedProducts.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No products found</p>
-            {(selectedCategory !== 'All' || searchQuery) && (
+            {(selectedCategory !== 'All' || selectedCondition !== 'All' || searchQuery) && (
               <button 
                 className="mt-4 text-blue-500 hover:underline"
                 onClick={() => {
                   setSelectedCategory('All');
+                  setSelectedCondition('All');
+                  setSortBy('Recent');
                   setSearchQuery('');
                 }}
               >

@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import { compressImage } from "@/lib/imageUtils";
+import ProductPreview from "@/components/ProductPreview";
 
 interface Category {
   id: string;
@@ -177,39 +178,60 @@ const CreateProduct = () => {
     if (error) throw error;
   };
 
+  const validateForm = () => {
+    const errors: string[] = [];
+    
+    if (!formData.title.trim()) {
+      errors.push("Product title is required");
+    }
+    
+    if (!formData.category_id) {
+      errors.push("Please select a category");
+    }
+    
+    if (selectedImages.length === 0) {
+      errors.push("At least one product image is required");
+    }
+    
+    if (formData.listing_type === 'sell' || formData.listing_type === 'both') {
+      if (!formData.sell_price || parseFloat(formData.sell_price) <= 0) {
+        errors.push("Valid sell price is required");
+      }
+    }
+    
+    if (formData.listing_type === 'rent' || formData.listing_type === 'both') {
+      if (!formData.rent_price_per_day || parseFloat(formData.rent_price_per_day) <= 0) {
+        errors.push("Valid rent price per day is required");
+      }
+    }
+    
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to create a product listing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate form
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      toast({
+        title: "Please fix the following errors:",
+        description: validationErrors.join(", "),
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      // Validate required fields
-      if (!formData.title || !formData.category_id || selectedImages.length === 0) {
-        toast({
-          title: "Missing required fields",
-          description: "Please fill in all required fields and upload at least one image.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (formData.listing_type === 'sell' && !formData.sell_price) {
-        toast({
-          title: "Missing price",
-          description: "Please enter a sell price.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (formData.listing_type === 'rent' && !formData.rent_price_per_day) {
-        toast({
-          title: "Missing price",
-          description: "Please enter a rent price per day.",
-          variant: "destructive",
-        });
-        return;
-      }
 
       // Create product
       const productData = {
@@ -236,7 +258,19 @@ const CreateProduct = () => {
 
       // Upload images
       setUploadingImages(true);
-      await uploadImages(product.id);
+      try {
+        await uploadImages(product.id);
+      } catch (imageError) {
+        console.error('Image upload failed:', imageError);
+        // Still navigate to marketplace but show warning
+        toast({
+          title: "Product created with image upload issues",
+          description: "Your product was created but some images may not have uploaded properly.",
+          variant: "destructive",
+        });
+        navigate('/marketplace');
+        return;
+      }
 
       toast({
         title: "Product created successfully!",
@@ -488,6 +522,27 @@ const CreateProduct = () => {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Preview Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Preview & Publish</CardTitle>
+                <CardDescription>Review your listing before publishing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProductPreview
+                  formData={formData}
+                  categories={categories}
+                  imagePreview={imagePreview}
+                  onEdit={() => {/* Form is already visible */}}
+                  onPublish={handleSubmit}
+                  isPublishing={loading || uploadingImages}
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Click preview to see how your product will appear to buyers, then publish when ready.
+                </p>
               </CardContent>
             </Card>
 
