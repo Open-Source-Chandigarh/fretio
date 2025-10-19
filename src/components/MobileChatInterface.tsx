@@ -95,7 +95,7 @@ const MobileChatInterface = ({
           <div className="flex items-center space-x-3">
             <div className="relative">
               <Avatar>
-                <AvatarImage src={otherUser.avatar_url} />
+                <AvatarImage src={otherUser.avatar_url} alt={otherUser.full_name} />
                 <AvatarFallback>{otherUser.full_name.charAt(0)}</AvatarFallback>
               </Avatar>
               {otherUser.is_online && (
@@ -163,7 +163,10 @@ const MobileChatInterface = ({
                     {/* Avatar */}
                     {showAvatar ? (
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={isCurrentUser ? currentUser.avatar_url : otherUser.avatar_url} />
+                        <AvatarImage 
+                          src={isCurrentUser ? currentUser.avatar_url : otherUser.avatar_url}
+                          alt={isCurrentUser ? currentUser.full_name : otherUser.full_name}
+                        />
                         <AvatarFallback>
                           {isCurrentUser ? currentUser.full_name.charAt(0) : otherUser.full_name.charAt(0)}
                         </AvatarFallback>
@@ -184,7 +187,7 @@ const MobileChatInterface = ({
                       {msg.image_url && (
                         <img
                           src={msg.image_url}
-                          alt="Shared image"
+                          alt=""
                           className="max-w-full rounded-lg mb-2"
                         />
                       )}
@@ -210,7 +213,7 @@ const MobileChatInterface = ({
         {isTyping && (
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={otherUser.avatar_url} />
+              <AvatarImage src={otherUser.avatar_url} alt={otherUser.full_name} />
               <AvatarFallback>{otherUser.full_name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="bg-muted px-4 py-2 rounded-2xl rounded-bl-sm">

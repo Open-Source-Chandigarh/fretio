@@ -3,6 +3,10 @@ import { cn } from "@/lib/utils";
 
 interface LazyImageProps {
   src: string;
+  /**
+   * Required, meaningful alternative text for the image.
+   * If an empty string is passed, a fallback will be derived from the src and a dev error will be logged.
+   */
   alt: string;
   className?: string;
   placeholderSrc?: string;
@@ -11,6 +15,30 @@ interface LazyImageProps {
   srcSet?: string;
   sizes?: string;
   loading?: "lazy" | "eager";
+}
+
+function deriveAltFromSrc(src: string): string {
+  try {
+    const path = src.split("?")[0].split("#")[0];
+    const file = path.split("/").pop() || "image";
+    const withoutExt = file.replace(/\.[a-zA-Z0-9]+$/, "");
+    const spaced = withoutExt.replace(/[-_]+/g, " ").trim();
+    return spaced || "Image";
+  } catch {
+    return "Image";
+  }
+}
+
+function enforceAlt(alt: string, src: string): string {
+  const trimmed = (alt ?? "").trim();
+  if (trimmed.length > 0) return trimmed;
+  const fallback = deriveAltFromSrc(src);
+  if (import.meta.env.DEV) {
+    console.error(
+      `[a11y] Missing non-empty alt text for <LazyImage>. Using fallback derived from src: "${fallback}" (src: ${src})`
+    );
+  }
+  return fallback;
 }
 
 const LazyImage = ({
@@ -29,6 +57,8 @@ const LazyImage = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isError, setIsError] = useState(false);
   const intersectionObserverRef = useRef<IntersectionObserver | null>(null);
+
+  const altText = enforceAlt(alt, src);
 
   useEffect(() => {
     // If loading is eager, load immediately
@@ -95,7 +125,7 @@ const LazyImage = ({
       <img
         ref={setImageRef}
         src={imageSrc}
-        alt={alt}
+        alt={altText}
         srcSet={srcSet}
         sizes={sizes}
         onLoad={handleLoad}

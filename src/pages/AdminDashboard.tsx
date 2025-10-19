@@ -479,7 +479,7 @@ const AdminDashboard = () => {
                         <div key={verification.id} className="flex items-center justify-between p-4 border rounded-lg">
                           <div className="flex items-center space-x-4">
                             <Avatar className="h-10 w-10">
-                              <AvatarImage src={verification.profiles.avatar_url} />
+                              <AvatarImage src={verification.profiles.avatar_url} alt={verification.profiles.full_name} />
                               <AvatarFallback>
                                 {verification.profiles.full_name.charAt(0)}
                               </AvatarFallback>
@@ -522,7 +522,7 @@ const AdminDashboard = () => {
                                   <div className="space-y-4">
                                     <div className="flex items-center space-x-4">
                                       <Avatar className="h-16 w-16">
-                                        <AvatarImage src={selectedVerification.profiles.avatar_url} />
+                                        <AvatarImage src={selectedVerification.profiles.avatar_url} alt={selectedVerification.profiles.full_name} />
                                         <AvatarFallback>
                                           {selectedVerification.profiles.full_name.charAt(0)}
                                         </AvatarFallback>
@@ -607,7 +607,7 @@ const AdminDashboard = () => {
                       <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center space-x-4">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={profile.avatar_url} />
+                            <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
                             <AvatarFallback>{profile.full_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>

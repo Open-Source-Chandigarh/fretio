@@ -139,7 +139,7 @@ const SwipeableImageGallery = ({
             >
               <LazyImage
                 src={images[currentIndex]}
-                alt={`Image ${currentIndex + 1}`}
+                alt=""
                 className="max-w-full max-h-full object-contain rounded-lg"
                 loading="eager"
               />

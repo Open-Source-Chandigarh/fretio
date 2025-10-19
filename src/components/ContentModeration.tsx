@@ -446,7 +446,7 @@ const ContentModeration = () => {
               <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={product.seller.avatar_url} />
+                    <AvatarImage src={product.seller.avatar_url} alt={product.seller.full_name} />
                     <AvatarFallback>
                       {product.seller.full_name.charAt(0)}
                     </AvatarFallback>

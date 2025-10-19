@@ -153,7 +153,7 @@ const UserRating: React.FC<UserRatingProps> = ({
     <div className="flex items-center space-x-2">
       {showAvatar && (
         <Avatar className={sizeClasses.avatar}>
-          <AvatarImage src={profile.avatar_url} />
+          <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
           <AvatarFallback>
             <User className="h-3 w-3" />
           </AvatarFallback>
