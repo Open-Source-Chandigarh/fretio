@@ -37,7 +37,7 @@ export async function compressImage(
         }
 
         // Calculate new dimensions
-        let { width, height } = calculateDimensions(
+        const { width, height } = calculateDimensions(
           img.width,
           img.height,
           maxWidth,

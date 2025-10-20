@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRef, useCallback, useState } from "react";
 
 const categories = [
   {
@@ -74,6 +75,60 @@ const categories = [
 ];
 
 const CategoryGrid = () => {
+  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
+  const getGridColumns = useCallback(() => {
+    if (typeof window === 'undefined') return 4;
+    if (window.innerWidth >= 1024) return 4; // lg breakpoint
+    if (window.innerWidth >= 768) return 3;  // md breakpoint
+    return 2; // sm breakpoint
+  }, []);
+
+  const focusCategory = useCallback((index: number) => {
+    if (categoryRefs.current[index]) {
+      setFocusedIndex(index);
+      categoryRefs.current[index]?.focus();
+    }
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
+    const gridCols = getGridColumns();
+    const totalCategories = categories.length;
+    let newIndex = currentIndex;
+
+    switch (e.key) {
+      case 'ArrowRight':
+        e.preventDefault();
+        newIndex = (currentIndex + 1) % totalCategories;
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        newIndex = currentIndex === 0 ? totalCategories - 1 : currentIndex - 1;
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        newIndex = Math.min(totalCategories - 1, currentIndex + gridCols);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        newIndex = Math.max(0, currentIndex - gridCols);
+        break;
+      case 'Home':
+        e.preventDefault();
+        newIndex = 0;
+        break;
+      case 'End':
+        e.preventDefault();
+        newIndex = totalCategories - 1;
+        break;
+      default:
+        return; // Don't focus if key isn't handled
+    }
+
+    focusCategory(newIndex);
+  }, [focusCategory, getGridColumns]);
+
   return (
     <section className="relative py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
       {/* Background Decor */}
@@ -121,13 +176,21 @@ const CategoryGrid = () => {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                <motion.div
+                <motion.button
+                  ref={(el) => (categoryRefs.current[i] = el)}
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.97 }}
-                  className="relative group"
+                  className="relative group w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-3xl"
+                  onKeyDown={(e) => handleKeyDown(e, i)}
+                  onClick={() => {
+                    // Add category selection logic here
+                    console.log(`Selected category: ${category.name}`);
+                  }}
+                  aria-label={`Browse ${category.name} category, ${category.count} items available`}
+                  tabIndex={i === focusedIndex ? 0 : -1} // Roving tabindex
                 >
                   {/* Card Container */}
-                  <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                  <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] group-focus:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                     {/* Gradient Ribbon */}
                     <div
                       className={`absolute inset-x-0 top-0 h-2 bg-gradient-to-r ${category.color}`}
@@ -138,7 +201,7 @@ const CategoryGrid = () => {
                       <div
                         className={`p-4 rounded-2xl bg-gradient-to-br ${category.color} shadow-inner flex items-center justify-center`}
                       >
-                        <Icon className="h-8 w-8 text-slate-700" />
+                        <Icon className="h-8 w-8 text-slate-700" aria-hidden="true" />
                       </div>
 
                       <div className="text-center">
@@ -152,11 +215,11 @@ const CategoryGrid = () => {
 
                       {/* Floating Accent Circle */}
                       <div
-                        className={`absolute -bottom-6 -right-6 w-20 h-20 bg-gradient-to-br ${category.color} rounded-full blur-3xl opacity-0 group-hover:opacity-60 transition-all duration-500`}
+                        className={`absolute -bottom-6 -right-6 w-20 h-20 bg-gradient-to-br ${category.color} rounded-full blur-3xl opacity-0 group-hover:opacity-60 group-focus:opacity-60 transition-all duration-500`}
                       ></div>
                     </div>
                   </div>
-                </motion.div>
+                </motion.button>
               </motion.div>
             );
           })}

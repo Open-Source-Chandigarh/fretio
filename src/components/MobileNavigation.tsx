@@ -47,6 +47,13 @@ const MobileNavigation = () => {
     navigate(item.path);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, item: NavItem) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleNavigation(item);
+    }
+  };
+
   // Hide on certain pages
   const hiddenPaths = ["/auth", "/complete-profile"];
   if (hiddenPaths.includes(location.pathname)) {
@@ -69,8 +76,12 @@ const MobileNavigation = () => {
             <button
               key={item.id}
               onClick={() => handleNavigation(item)}
+              onKeyDown={(e) => handleKeyDown(e, item)}
+              aria-label={`${item.label}${item.badge ? ` (${item.badge} unread)` : ''}`}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 "relative flex flex-col items-center justify-center py-2 px-3 rounded-xl transition-all duration-200",
+                "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                 isActive && !isCreate && "bg-primary/10",
                 isCreate && "bg-gradient-to-r from-primary to-accent"
               )}
@@ -165,7 +176,15 @@ export const ExtendedMobileNavigation = () => {
               <button
                 key={item.id}
                 onClick={() => navigate(item.path)}
-                className="relative flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 active:scale-95"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(item.path);
+                  }
+                }}
+                aria-label={`${item.label}${item.badge ? ` (${item.badge} unread)` : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                className="relative flex flex-col items-center justify-center py-2 px-3 rounded-lg transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 style={{ flex: 1 }}
               >
                 <div className="relative">
@@ -197,7 +216,14 @@ export const ExtendedMobileNavigation = () => {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => navigate("/create-product")}
-        className="fixed bottom-20 right-4 z-50 md:hidden w-14 h-14 bg-gradient-to-r from-primary to-accent rounded-full shadow-lg flex items-center justify-center"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            navigate("/create-product");
+          }
+        }}
+        aria-label="Create new product listing"
+        className="fixed bottom-20 right-4 z-50 md:hidden w-14 h-14 bg-gradient-to-r from-primary to-accent rounded-full shadow-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         <Plus className="h-6 w-6 text-white" />
       </motion.button>
