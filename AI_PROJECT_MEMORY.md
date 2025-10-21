@@ -500,7 +500,7 @@ To continue development on this project:
 - ✅ Image optimization and WebP support
 
 **Important Notes**:
-- Uses production Supabase instance (gokuiwmiommnvexcckvs.supabase.co)
+- Uses production Supabase instance (YOUR_PROJECT_ID.supabase.co)
 - SMS provider is set to "mock" for development
 - Profiles table with proper RLS policies and triggers
 - Storage bucket 'verification-docs' configured
