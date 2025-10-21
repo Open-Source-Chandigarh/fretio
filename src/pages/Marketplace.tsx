@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,13 +26,8 @@ interface Product {
   listing_type: "sell" | "rent" | "both";
   views_count: number;
   created_at: string;
+  seller_id: string;
   categories: { name: string } | null;
-  profiles: {
-    user_id: string;
-    full_name: string | null;
-    room_number: string | null;
-    user_reviews_received: { rating: number }[];
-  } | null;
   product_images: { image_url: string; is_primary: boolean; sort_order: number }[];
 }
 
@@ -45,7 +40,9 @@ const conditions = ["All", "New", "Like New", "Good", "Fair"];
 const sortOptions = ["Recent", "Price: Low to High", "Price: High to Low", "Most Viewed"];
 
 const Marketplace = () => {
+  console.log('Marketplace component mounting');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -57,14 +54,20 @@ const Marketplace = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<any>(null);
-  
-  // Offline detection
-  const { showOfflineWarning } = useOfflineNotification();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for category parameter in URL
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, [user]);
+  }, []); // Remove user dependency to load products immediately
 
   useEffect(() => {
     // Track search query in history
@@ -87,7 +90,7 @@ const Marketplace = () => {
   }, [searchQuery, user, filteredProducts.length]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('categories')
       .select('id, name')
       .order('name');
@@ -96,13 +99,13 @@ const Marketplace = () => {
   };
 
   const fetchProducts = async () => {
-    if (!user) return;
-    
+    console.log('fetchProducts called');
     setLoading(true);
     setError(null);
-    
     try {
-      const { data, error: supabaseError } = await supabase
+      // Simplified query without profiles dependency
+      // Using 'any' to bypass TypeScript types temporarily
+      const { data, error } = await (supabase as any)
         .from('products')
         .select(`
           id,
@@ -114,31 +117,30 @@ const Marketplace = () => {
           listing_type,
           views_count,
           created_at,
+          seller_id,
           categories (name),
-          profiles (
-            user_id,
-            full_name,
-            room_number,
-            user_reviews_received:user_reviews!reviewee_id (rating)
-          ),
           product_images (image_url, is_primary, sort_order)
         `)
         .eq('status', 'available')
         .order('created_at', { ascending: false });
 
-      if (supabaseError) {
-        throw new Error(`Failed to fetch products: ${supabaseError.message}`);
-      }
+      console.log('Supabase response:', { data, error });
 
-      if (data) {
+      if (error) {
+        console.error('Error fetching products:', error);
+        setError(error.message);
+        setProducts([]);
+      } else if (data) {
+        console.log('Fetched products:', data);
         setProducts(data as unknown as Product[]);
-        setError(null);
+      } else {
+        console.log('No data returned');
+        setProducts([]);
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load products';
-      console.error('Error fetching products:', error);
-      setError(errorMessage);
-      setProducts([]); // Clear products on error
+    } catch (error: any) {
+      console.error('Exception fetching products:', error);
+      setError(error.message || 'Unknown error');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -149,8 +151,10 @@ const Marketplace = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    // Direct category matching with exact database names
     const matchesCategory = selectedCategory === "All" || 
-      (product.categories?.name && selectedCategory === product.categories.name);
+      (product.categories?.name && product.categories.name === selectedCategory);
+    
     const matchesCondition = selectedCondition === "All" || 
       (product.condition === "like_new" && selectedCondition === "Like New") ||
       product.condition.toLowerCase().replace('_', ' ') === selectedCondition.toLowerCase();
@@ -214,13 +218,14 @@ const Marketplace = () => {
   });
 
   const formatProduct = (product: Product) => {
-    const images = product.product_images
-      .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
-      .map(img => img.image_url);
+    const images = product.product_images && product.product_images.length > 0
+      ? product.product_images
+          .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
+          .map(img => img.image_url)
+      : [];
 
-    const avgRating = product.profiles?.user_reviews_received?.length 
-      ? product.profiles.user_reviews_received.reduce((sum, r) => sum + r.rating, 0) / product.profiles.user_reviews_received.length
-      : 0;
+    // Default rating since we don't have profiles/reviews yet
+    const avgRating = 0;
 
     const timeAgo = new Date(product.created_at).toLocaleDateString();
 
@@ -229,11 +234,11 @@ const Marketplace = () => {
       title: product.title,
       price: product.sell_price || product.rent_price_per_day || 0,
       condition: product.condition.replace('_', '-') as "new" | "like-new" | "good" | "fair",
-      images: images.length > 0 ? images : ["/placeholder.svg"],
+      images: images.length > 0 ? images : ["https://via.placeholder.com/300"],
       seller: {
-        id: product.profiles?.user_id,
-        name: product.profiles?.full_name || "Anonymous",
-        room: product.profiles?.room_number || "N/A",
+        id: product.seller_id || "unknown",
+        name: "Student Seller", // Default name since we don't have profiles
+        room: "N/A",
         rating: avgRating
       },
       category: product.categories?.name || "Other",
@@ -393,14 +398,10 @@ const Marketplace = () => {
           </div>
         </section>
 
-        {/* Offline Warning */}
-        {showOfflineWarning && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0" />
-            <div>
-              <p className="text-yellow-800 font-medium">You're currently offline</p>
-              <p className="text-yellow-700 text-sm">Some features may not be available until you reconnect.</p>
-            </div>
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            <strong>Error: </strong>{error}
           </div>
         )}
 

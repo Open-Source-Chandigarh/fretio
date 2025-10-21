@@ -13,122 +13,87 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRef, useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+// Map to actual database category names from seed-categories.sql
 const categories = [
   {
     id: "books",
-    name: "Books & Study",
+    name: "Books & Study Material", // Exact database name
+    displayName: "Books & Study",
     icon: BookOpen,
     count: 234,
     color: "from-teal-200 to-teal-400",
   },
   {
     id: "electronics",
-    name: "Electronics",
+    name: "Electronics", // Exact database name
+    displayName: "Electronics",
     icon: Laptop2,
     count: 156,
     color: "from-indigo-200 to-indigo-400",
   },
   {
     id: "clothing",
-    name: "Clothing",
+    name: "Clothing & Fashion", // Exact database name
+    displayName: "Clothing",
     icon: Shirt,
     count: 89,
     color: "from-rose-200 to-rose-400",
   },
   {
     id: "gaming",
-    name: "Gaming",
+    name: "Gaming", // Exact database name
+    displayName: "Gaming",
     icon: Gamepad2,
     count: 67,
     color: "from-green-200 to-green-400",
   },
   {
     id: "furniture",
-    name: "Furniture",
+    name: "Furniture", // Exact database name
+    displayName: "Furniture",
     icon: Home,
     count: 45,
     color: "from-orange-200 to-orange-400",
   },
   {
-    id: "vehicles",
-    name: "Bikes & Scooters",
-    icon: Bike,
-    count: 23,
-    color: "from-cyan-200 to-cyan-400",
-  },
-  {
-    id: "food",
-    name: "Food & Kitchen",
+    id: "kitchen",
+    name: "Kitchen & Appliances", // Exact database name
+    displayName: "Kitchen & Food",
     icon: Coffee,
     count: 78,
     color: "from-amber-200 to-amber-400",
   },
   {
     id: "sports",
-    name: "Sports & Fitness",
+    name: "Sports & Fitness", // Exact database name
+    displayName: "Sports & Fitness",
     icon: Dumbbell,
     count: 34,
     color: "from-lime-200 to-lime-400",
   },
+  {
+    id: "others",
+    name: "Other", // Exact database name
+    displayName: "Others",
+    icon: Bike,
+    count: 23,
+    color: "from-cyan-200 to-cyan-400",
+  },
 ];
 
 const CategoryGrid = () => {
-  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [focusedIndex, setFocusedIndex] = useState(0);
-
-  const getGridColumns = useCallback(() => {
-    if (typeof window === 'undefined') return 4;
-    if (window.innerWidth >= 1024) return 4; // lg breakpoint
-    if (window.innerWidth >= 768) return 3;  // md breakpoint
-    return 2; // sm breakpoint
-  }, []);
-
-  const focusCategory = useCallback((index: number) => {
-    if (categoryRefs.current[index]) {
-      setFocusedIndex(index);
-      categoryRefs.current[index]?.focus();
-    }
-  }, []);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
-    const gridCols = getGridColumns();
-    const totalCategories = categories.length;
-    let newIndex = currentIndex;
-
-    switch (e.key) {
-      case 'ArrowRight':
-        e.preventDefault();
-        newIndex = (currentIndex + 1) % totalCategories;
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        newIndex = currentIndex === 0 ? totalCategories - 1 : currentIndex - 1;
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        newIndex = Math.min(totalCategories - 1, currentIndex + gridCols);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        newIndex = Math.max(0, currentIndex - gridCols);
-        break;
-      case 'Home':
-        e.preventDefault();
-        newIndex = 0;
-        break;
-      case 'End':
-        e.preventDefault();
-        newIndex = totalCategories - 1;
-        break;
-      default:
-        return; // Don't focus if key isn't handled
-    }
-
-    focusCategory(newIndex);
-  }, [focusCategory, getGridColumns]);
-
+  const navigate = useNavigate();
+  
+  const handleCategoryClick = (categoryName: string) => {
+    // Navigate to marketplace with category filter
+    navigate(`/marketplace?category=${encodeURIComponent(categoryName)}`);
+  };
+  
+  const handleViewAllClick = () => {
+    navigate('/marketplace');
+  };
   return (
     <section className="relative py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
       {/* Background Decor */}
@@ -180,14 +145,8 @@ const CategoryGrid = () => {
                   ref={(el) => (categoryRefs.current[i] = el)}
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.97 }}
-                  className="relative group w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-3xl"
-                  onKeyDown={(e) => handleKeyDown(e, i)}
-                  onClick={() => {
-                    // Add category selection logic here
-                    console.log(`Selected category: ${category.name}`);
-                  }}
-                  aria-label={`Browse ${category.name} category, ${category.count} items available`}
-                  tabIndex={i === focusedIndex ? 0 : -1} // Roving tabindex
+                  className="relative group cursor-pointer"
+                  onClick={() => handleCategoryClick(category.name)}
                 >
                   {/* Card Container */}
                   <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] group-focus:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
@@ -206,7 +165,7 @@ const CategoryGrid = () => {
 
                       <div className="text-center">
                         <h3 className="text-base font-semibold text-slate-800 mb-1">
-                          {category.name}
+                          {category.displayName}
                         </h3>
                         <p className="text-sm text-slate-500">
                           {category.count} items
@@ -236,6 +195,7 @@ const CategoryGrid = () => {
           <Button
             variant="outline"
             size="lg"
+            onClick={handleViewAllClick}
             className="group px-6 py-5 border-slate-300 text-slate-700 font-medium hover:bg-gradient-to-r hover:from-teal-500 hover:to-indigo-500 hover:text-white hover:border-transparent rounded-full transition-all shadow-sm"
           >
             View All Categories

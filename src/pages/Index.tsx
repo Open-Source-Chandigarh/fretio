@@ -5,81 +5,189 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Users, Shield, Target } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import CategoryGrid from "@/components/CategoryGrid";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock data for featured products
-const featuredProducts = [
-  {
-    id: "1",
-    title: "Engineering Mechanics Textbook - R.S. Khurmi",
-    price: 450,
-    condition: "like-new" as const,
-    images: ["/placeholder.svg"],
-    seller: { name: "Arjun K", room: "A-204", rating: 4.8 },
-    category: "Books",
-    timeAgo: "2h ago",
-    views: 23,
-    isForRent: false,
-  },
-  {
-    id: "2",
-    title: "Gaming Laptop - ROG Strix G15",
-    price: 35000,
-    condition: "good" as const,
-    images: ["/placeholder.svg"],
-    seller: { name: "Priya S", room: "B-156", rating: 4.9 },
-    category: "Electronics",
-    timeAgo: "5h ago",
-    views: 67,
-    isForRent: true,
-    rentPricePerDay: 500,
-  },
-  {
-    id: "3",
-    title: "Study Chair with Cushion",
-    price: 1200,
-    condition: "new" as const,
-    images: ["/placeholder.svg"],
-    seller: { name: "Rahul M", room: "C-89", rating: 4.7 },
-    category: "Furniture",
-    timeAgo: "1d ago",
-    views: 45,
-    isForRent: false,
-  },
-  {
-    id: "4",
-    title: "Guitar - Yamaha F310 Acoustic",
-    price: 8500,
-    condition: "good" as const,
-    images: ["/placeholder.svg"],
-    seller: { name: "Neha D", room: "A-67", rating: 5.0 },
-    category: "Hobbies",
-    timeAgo: "3d ago",
-    views: 89,
-    isForRent: true,
-    rentPricePerDay: 150,
-  },
-];
+// Interface for database products
+interface Product {
+  id: string;
+  title: string;
+  sell_price: number | null;
+  rent_price_per_day: number | null;
+  condition: string;
+  status: string;
+  created_at: string;
+  views_count?: number;
+  seller_id: string;
+  is_featured?: boolean;
+  categories: {
+    name: string;
+  } | null;
+  product_images?: Array<{
+    image_url: string;
+    is_primary: boolean;
+    sort_order: number;
+  }>;
+}
 
 const Index = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && user) {
-      // Redirect authenticated users based on their profile status
-      if (!profile?.university_id || !profile?.hostel_id) {
+      // Only redirect if profile is incomplete
+      if (!profile || !profile.is_active || profile.verification_status !== "verified") {
         navigate("/complete-profile");
-      } else if (profile.verification_status === "verified") {
-        navigate("/marketplace");
       }
+      // Remove auto-redirect to marketplace - let users see the home page
     }
   }, [user, profile, loading, navigate]);
 
-  // Show loading or redirect for authenticated users
-  if (loading || (user && profile)) {
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, []);
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories (name),
+          product_images (image_url, is_primary, sort_order)
+        `)
+        .eq('status', 'available')
+        .order('views_count', { ascending: false })
+        .limit(4);
+
+      if (error) throw error;
+
+      // Format products for ProductCard component
+      const formattedProducts = (data || []).map(product => formatProductForCard(product));
+      setFeaturedProducts(formattedProducts);
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+      // Fallback to sample images if database fetch fails
+      setFeaturedProducts([
+        {
+          id: "1",
+          title: "Engineering Mechanics Textbook",
+          price: 450,
+          condition: "like-new" as const,
+          images: ["https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600"],
+          seller: { name: "Arjun K", room: "A-204", rating: 4.8 },
+          category: "Books",
+          timeAgo: "2h ago",
+          views: 23,
+          isForRent: false,
+        },
+        {
+          id: "2",
+          title: "Gaming Laptop - ROG Strix G15",
+          price: 35000,
+          condition: "good" as const,
+          images: ["https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=600"],
+          seller: { name: "Priya S", room: "B-156", rating: 4.9 },
+          category: "Electronics",
+          timeAgo: "5h ago",
+          views: 67,
+          isForRent: true,
+          rentPricePerDay: 500,
+        },
+        {
+          id: "3",
+          title: "Study Chair with Cushion",
+          price: 1200,
+          condition: "new" as const,
+          images: ["https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600"],
+          seller: { name: "Rahul M", room: "C-89", rating: 4.7 },
+          category: "Furniture",
+          timeAgo: "1d ago",
+          views: 45,
+          isForRent: false,
+        },
+        {
+          id: "4",
+          title: "Guitar - Yamaha F310",
+          price: 8500,
+          condition: "good" as const,
+          images: ["https://images.unsplash.com/photo-1525201548942-d8732f6b4a07?w=600"],
+          seller: { name: "Neha D", room: "A-67", rating: 5.0 },
+          category: "Music",
+          timeAgo: "3d ago",
+          views: 89,
+          isForRent: true,
+          rentPricePerDay: 150,
+        },
+      ]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  const formatProductForCard = (product: Product) => {
+    // Use actual images from database or Unsplash fallbacks
+    const images = product.product_images && product.product_images.length > 0
+      ? product.product_images
+          .sort((a, b) => (a.is_primary ? -1 : b.is_primary ? 1 : a.sort_order - b.sort_order))
+          .map(img => img.image_url)
+      : getDefaultProductImage(product.categories?.name || 'Other');
+
+    const timeAgo = () => {
+      const created = new Date(product.created_at);
+      const now = new Date();
+      const diffMs = now.getTime() - created.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffHours / 24);
+      
+      if (diffHours < 1) return "just now";
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return "1d ago";
+      return `${diffDays}d ago`;
+    };
+
+    return {
+      id: product.id,
+      title: product.title,
+      price: product.sell_price || product.rent_price_per_day || 0,
+      condition: (product.condition?.replace('_', '-') || 'good') as "new" | "like-new" | "good" | "fair",
+      images: Array.isArray(images) ? images : [images],
+      seller: {
+        id: product.seller_id,
+        name: "Student Seller",
+        room: "A-" + Math.floor(Math.random() * 300 + 1),
+        rating: 4.5 + Math.random() * 0.5
+      },
+      category: product.categories?.name || "Other",
+      timeAgo: timeAgo(),
+      views: product.views_count || 0,
+      isForRent: product.rent_price_per_day !== null,
+      rentPricePerDay: product.rent_price_per_day || undefined
+    };
+  };
+
+  // Get default image based on category
+  const getDefaultProductImage = (category: string): string[] => {
+    const categoryImages: { [key: string]: string } = {
+      'Books & Study Material': 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600',
+      'Electronics': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=600',
+      'Clothing & Fashion': 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600',
+      'Furniture': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600',
+      'Sports & Fitness': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600',
+      'Gaming': 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=600',
+      'Kitchen & Appliances': 'https://images.unsplash.com/photo-1565452372282-0638fa9ad973?w=600',
+      'Other': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'
+    };
+    return [categoryImages[category] || categoryImages['Other']];
+  };
+
+  // Show loading state
+  if (loading) {
     return null;
   }
   return (
@@ -105,9 +213,29 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
+              {productsLoading ? (
+                // Loading skeleton
+                [...Array(4)].map((_, i) => (
+                  <div key={i} className="bg-card rounded-2xl border border-border/60 animate-pulse">
+                    <div className="aspect-square bg-muted rounded-t-2xl"></div>
+                    <div className="p-5 space-y-3">
+                      <div className="h-4 bg-muted rounded w-1/3"></div>
+                      <div className="h-6 bg-muted rounded"></div>
+                      <div className="h-8 bg-muted rounded w-1/2"></div>
+                      <div className="h-10 bg-muted rounded"></div>
+                    </div>
+                  </div>
+                ))
+              ) : featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <ProductCard key={product.id} {...product} />
+                ))
+              ) : (
+                // Fallback message if no products
+                <div className="col-span-full text-center py-8">
+                  <p className="text-slate-500">No featured products available</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
