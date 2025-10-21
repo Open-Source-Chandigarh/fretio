@@ -245,7 +245,7 @@ const Marketplace = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-6">
+      <main id="main-content" className="container mx-auto px-4 py-6">
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div>
@@ -274,22 +274,28 @@ const Marketplace = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-card border rounded-xl p-4 mb-6 space-y-4">
+        <section 
+          className="bg-card border rounded-xl p-4 mb-6 space-y-4" 
+          role="search" 
+          aria-label="Product search and filters"
+        >
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                aria-label="Search products"
+                type="search"
               />
             </div>
 
             {/* Category Filter */}
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px]" aria-label="Filter by category">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -301,7 +307,7 @@ const Marketplace = () => {
 
             {/* Condition Filter */}
             <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-              <SelectTrigger className="w-full md:w-[150px]">
+              <SelectTrigger className="w-full md:w-[150px]" aria-label="Filter by condition">
                 <SelectValue placeholder="Condition" />
               </SelectTrigger>
               <SelectContent>
@@ -313,7 +319,7 @@ const Marketplace = () => {
 
             {/* Sort */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px]" aria-label="Sort products">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -355,27 +361,33 @@ const Marketplace = () => {
 
             <div className="flex items-center space-x-2">
               <span className="text-sm text-muted-foreground">View:</span>
-              <div className="flex rounded-lg border">
+              <div className="flex rounded-lg border" role="tablist" aria-label="View mode">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
                   className="rounded-r-none"
+                  aria-label="Grid view"
+                  aria-pressed={viewMode === "grid"}
+                  role="tab"
                 >
-                  <Grid3X3 className="h-4 w-4" />
+                  <Grid3X3 className="h-4 w-4" aria-hidden="true" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
                   className="rounded-l-none"
+                  aria-label="List view"
+                  aria-pressed={viewMode === "list"}
+                  role="tab"
                 >
-                  <List className="h-4 w-4" />
+                  <List className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Error Display */}
         {error && (
@@ -385,6 +397,7 @@ const Marketplace = () => {
         )}
 
         {/* Products Grid */}
+        <section aria-label="Product listings">
         {loading ? (
           <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -431,6 +444,7 @@ const Marketplace = () => {
             </Button>
           </div>
         )}
+        </section>
 
         {/* Load More */}
         {sortedProducts.length > 0 && !loading && (

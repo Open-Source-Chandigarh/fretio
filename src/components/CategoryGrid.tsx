@@ -141,14 +141,15 @@ const CategoryGrid = () => {
                 }}
                 transition={{ duration: 0.5 }}
               >
-                <motion.div
+                <motion.button
+                  ref={(el) => (categoryRefs.current[i] = el)}
                   whileHover={{ y: -6 }}
                   whileTap={{ scale: 0.97 }}
                   className="relative group cursor-pointer"
                   onClick={() => handleCategoryClick(category.name)}
                 >
                   {/* Card Container */}
-                  <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                  <div className="relative bg-white border border-slate-100 rounded-3xl shadow-[0_6px_20px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] group-focus:shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                     {/* Gradient Ribbon */}
                     <div
                       className={`absolute inset-x-0 top-0 h-2 bg-gradient-to-r ${category.color}`}
@@ -159,7 +160,7 @@ const CategoryGrid = () => {
                       <div
                         className={`p-4 rounded-2xl bg-gradient-to-br ${category.color} shadow-inner flex items-center justify-center`}
                       >
-                        <Icon className="h-8 w-8 text-slate-700" />
+                        <Icon className="h-8 w-8 text-slate-700" aria-hidden="true" />
                       </div>
 
                       <div className="text-center">
@@ -173,11 +174,11 @@ const CategoryGrid = () => {
 
                       {/* Floating Accent Circle */}
                       <div
-                        className={`absolute -bottom-6 -right-6 w-20 h-20 bg-gradient-to-br ${category.color} rounded-full blur-3xl opacity-0 group-hover:opacity-60 transition-all duration-500`}
+                        className={`absolute -bottom-6 -right-6 w-20 h-20 bg-gradient-to-br ${category.color} rounded-full blur-3xl opacity-0 group-hover:opacity-60 group-focus:opacity-60 transition-all duration-500`}
                       ></div>
                     </div>
                   </div>
-                </motion.div>
+                </motion.button>
               </motion.div>
             );
           })}

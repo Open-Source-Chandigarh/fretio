@@ -24,6 +24,37 @@ const SwipeableImageGallery = ({
   const [scale, setScale] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  // Keyboard navigation handler
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        goToPrevious();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        goToNext();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        if (onClose) onClose();
+        break;
+      case ' ':
+      case 'Enter':
+        e.preventDefault();
+        toggleZoom();
+        break;
+      case 'Home':
+        e.preventDefault();
+        setCurrentIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        setCurrentIndex(images.length - 1);
+        break;
+    }
+  };
+
   const handleDragEnd = (event: MouseEvent | TouchEvent, info: PanInfo) => {
     const threshold = 50;
     
@@ -74,7 +105,14 @@ const SwipeableImageGallery = ({
   };
 
   return (
-    <div className={cn("relative bg-black/95", className)}>
+    <div 
+      className={cn("relative bg-black/95", className)}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      role="img"
+      aria-label={`Image gallery, showing image ${currentIndex + 1} of ${images.length}. Use arrow keys to navigate, Space/Enter to zoom, Escape to close.`}
+      aria-live="polite"
+    >
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/50 to-transparent">
         <div className="flex items-center justify-between p-4">
@@ -90,6 +128,7 @@ const SwipeableImageGallery = ({
               variant="ghost"
               onClick={toggleZoom}
               className="text-white hover:bg-white/20"
+              aria-label={isZoomed ? "Zoom out" : "Zoom in"}
             >
               {isZoomed ? (
                 <ZoomOut className="h-5 w-5" />
@@ -139,7 +178,7 @@ const SwipeableImageGallery = ({
             >
               <LazyImage
                 src={images[currentIndex]}
-                alt=""
+                alt={`Product image ${currentIndex + 1} of ${images.length}`}
                 className="max-w-full max-h-full object-contain rounded-lg"
                 loading="eager"
               />
@@ -155,6 +194,7 @@ const SwipeableImageGallery = ({
             onClick={goToPrevious}
             disabled={currentIndex === 0}
             className="absolute left-4 text-white hover:bg-white/20 disabled:opacity-50"
+            aria-label="Previous image"
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
@@ -165,6 +205,7 @@ const SwipeableImageGallery = ({
             onClick={goToNext}
             disabled={currentIndex === images.length - 1}
             className="absolute right-4 text-white hover:bg-white/20 disabled:opacity-50"
+            aria-label="Next image"
           >
             <ChevronRight className="h-6 w-6" />
           </Button>
@@ -182,6 +223,8 @@ const SwipeableImageGallery = ({
                   ? "bg-white w-6"
                   : "bg-white/50"
               )}
+              aria-label={`Go to image ${index + 1}`}
+              aria-current={index === currentIndex ? "true" : "false"}
             />
           ))}
         </div>
@@ -201,6 +244,8 @@ const SwipeableImageGallery = ({
                     ? "border-white scale-110"
                     : "border-transparent opacity-60 hover:opacity-100"
                 )}
+                aria-label={`View image ${index + 1}`}
+                aria-current={index === currentIndex ? "true" : "false"}
               >
                 <img
                   src={image}

@@ -127,10 +127,22 @@ const ProductCard = ({
     navigate(`/product/${id}`);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
   return (
-    <div
+    <article
+      role="article"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      aria-label={`Product: ${title}, Price: ₹${price}, Seller: ${seller.name}, Condition: ${condition}`}
       className={cn(
-        "group bg-card rounded-2xl border border-border/60 shadow-fretio-sm hover:shadow-fretio-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
+        "group bg-card rounded-2xl border border-border/60 shadow-fretio-sm hover:shadow-fretio-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       )}
     >
       {/* Image */}
@@ -146,11 +158,19 @@ const ProductCard = ({
         />
 
         {/* Floating Icons */}
-        <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-full bg-white/80 hover:bg-blue-100 border border-slate-200 shadow-sm"
+            className="h-9 w-9 rounded-full bg-white/80 hover:bg-blue-100 border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label={`Add ${title} to favorites`}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                // Add to favorites logic here
+              }
+            }}
           >
             <Heart className="h-4 w-4 text-amber-500" />
           </Button>
@@ -231,17 +251,23 @@ const ProductCard = ({
         {/* Button */}
         <Button
           variant="outline"
-          className="w-full mt-3 border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+          className="w-full mt-3 border-amber-200 text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           onClick={(e) => {
             e.stopPropagation();
             handleMessageSeller();
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.stopPropagation();
+            }
+          }}
+          aria-label={`Send message to ${seller.name} about ${title}`}
         >
           <MessageCircle className="w-4 h-4 mr-2" />
           Message Seller
         </Button>
       </div>
-    </div>
+    </article>
   );
 };
 

@@ -329,7 +329,7 @@ class RecommendationService {
       }
       
       let score = 0;
-      let reasons: string[] = [];
+      const reasons: string[] = [];
       
       // Category match score
       const categoryScore = preferences.categories.get(product.category_id) || 0;

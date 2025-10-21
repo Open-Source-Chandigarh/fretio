@@ -134,7 +134,7 @@ const BulkOperations = ({ selectedProducts, onClearSelection, onRefresh, allProd
         const selectedProductsData = allProducts.filter(p => selectedProducts.has(p.id));
 
         for (const product of selectedProductsData) {
-          let updateData: any = { ...updates };
+          const updateData: any = { ...updates };
 
           if (product.sell_price) {
             if (bulkEditData.priceAdjustmentType === "percentage") {

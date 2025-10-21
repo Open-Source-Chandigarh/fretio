@@ -72,32 +72,53 @@ const Header = () => {
     icon?: React.ComponentType<{ className?: string }>;
   }
 
-  const NavLink = ({ to, label, icon: Icon }: NavLinkProps) => (
-    <button
-      onClick={() => navigate(to)}
-      className={cn(
-        "relative flex items-center gap-1.5 text-sm font-medium transition-all duration-300 hover:text-amber-600 group",
-        location.pathname === to ? "text-amber-600" : "text-slate-600"
-      )}
-    >
-      {Icon && (
-        <Icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
-      )}
-      {label}
-      {location.pathname === to && (
-        <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-amber-500 rounded-full"></span>
-      )}
-    </button>
-  );
+  const NavLink = ({ to, label, icon: Icon }: NavLinkProps) => {
+    const isActive = location.pathname === to;
+    
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        navigate(to);
+      }
+    };
+
+    return (
+      <button
+        onClick={() => navigate(to)}
+        onKeyDown={handleKeyDown}
+        aria-current={isActive ? 'page' : undefined}
+        className={cn(
+          "relative flex items-center gap-1.5 text-sm font-medium transition-all duration-300 hover:text-amber-600 group rounded-md px-3 py-2",
+          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+          isActive ? "text-amber-600" : "text-slate-600"
+        )}
+      >
+        {Icon && (
+          <Icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
+        )}
+        {label}
+        {isActive && (
+          <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-amber-500 rounded-full"></span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/60 backdrop-blur-md shadow-sm transition-all">
       <div className="container mx-auto px-5">
         <div className="flex h-16 items-center justify-between">
           {/* LOGO */}
-          <div
-            className="flex items-center space-x-2 cursor-pointer"
+          <button
+            className="flex items-center space-x-2 cursor-pointer rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all"
             onClick={() => navigate("/")}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate('/');
+              }
+            }}
+            aria-label="Fretio - Go to homepage"
           >
             <div className="h-9 w-9 rounded-xl bg-gradient-hero flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-lg">F</span>
@@ -105,10 +126,10 @@ const Header = () => {
             <span className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               Fretio
             </span>
-          </div>
+          </button>
 
           {/* DESKTOP NAVIGATION */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav id="navigation" className="hidden md:flex items-center space-x-6" aria-label="Main navigation">
             <NavLink to="/marketplace" label="Browse" icon={Search} />
             <NavLink to="/my-products" label="My Listings" icon={ShoppingBag} />
             <NavLink to="/favorites" label="Favorites" icon={Star} />
@@ -215,8 +236,16 @@ const Header = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden hover:bg-amber-50 transition"
+            className="md:hidden hover:bg-amber-50 transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsMenuOpen(!isMenuOpen);
+              }
+            }}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? (
               <X className="h-5 w-5" />
@@ -229,7 +258,7 @@ const Header = () => {
         {/* MOBILE MENU */}
         {isMenuOpen && (
           <div className="md:hidden border-t mt-2 py-4 space-y-4 bg-white/90 backdrop-blur-md rounded-b-2xl shadow-lg">
-            <nav className="flex flex-col space-y-3 text-slate-600">
+            <nav className="flex flex-col space-y-3 text-slate-600" aria-label="Mobile navigation">
               <NavLink to="/marketplace" label="Browse" icon={Search} />
               <NavLink
                 to="/my-products"
