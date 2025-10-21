@@ -1,10 +1,14 @@
 // Test script to check if Supabase email is working
 // Run this after configuring SMTP: node test-email.js
+// 
+// IMPORTANT: Set your environment variables before running:
+// export VITE_SUPABASE_URL="https://your-project.supabase.co"
+// export VITE_SUPABASE_ANON_KEY="your-anon-key-here"
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://gokuiwmiommnvexcckvs.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdva3Vpd21pb21tbnZleGNja3ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0OTczNDgsImV4cCI6MjA3NjA3MzM0OH0.dZxThXl_Oc2y1oyWbzTaz3SVAN3_dUaOfa5jR6PKPok';
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key-here';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

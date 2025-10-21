@@ -1,24 +1,36 @@
 # Fretio 🛍️
 
-> A modern, student-focused marketplace platform built with React, TypeScript, and Supabase
+<div align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
+  <img src="https://img.shields.io/badge/React-18.3-blue.svg" alt="React 18.3" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8-blue.svg" alt="TypeScript 5.8" />
+  <img src="https://img.shields.io/badge/Supabase-Backend-green.svg" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Vite-5.4-purple.svg" alt="Vite" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC.svg" alt="TailwindCSS" />
+</div>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Backend-green.svg)](https://supabase.com/)
+<div align="center">
+  <h3>A Modern Student Marketplace Platform for University Communities</h3>
+  <p>Buy, sell, and trade items within your university community with real-time messaging, secure authentication, and a seamless user experience.</p>
+</div>
+
+---
 
 ## 📖 Table of Contents
 
-- [About](#about)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Database Schema](#database-schema)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+- [🎯 About](#-about)
+- [✨ Features](#-features)
+- [🛍️ Demo](#-demo)
+- [🛠️ Tech Stack](#%EF%B8%8F-tech-stack)
+- [🚀 Quick Start](#-quick-start)
+- [📚 Documentation](#-documentation)
+- [📁 Project Structure](#-project-structure)
+- [🗝️ Database Schema](#%EF%B8%8F-database-schema)
+- [🧪 Testing](#-testing)
+- [📦 Deployment](#-deployment)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [👥 Team](#-team)
 
 ## 🎯 About
 
@@ -34,23 +46,87 @@ Fretio is a comprehensive marketplace platform designed specifically for student
 
 ## ✨ Features
 
-### Core Features
-- 🛍️ **Product Marketplace**: Browse and list products across multiple categories
-- 💬 **Real-time Messaging**: Chat with buyers/sellers instantly
-- 👤 **User Profiles**: Comprehensive profiles with ratings and history
-- 📱 **Phone Verification**: SMS-based authentication for security
-- ⭐ **Reviews & Ratings**: Rate transactions and build reputation
-- ❤️ **Favorites System**: Save products for later
-- 🔔 **Notifications**: Real-time alerts for messages and product updates
-- 🏫 **University Integration**: Filter by university and hostel
-- 🔍 **Advanced Search**: Filter and search products efficiently
-- 📸 **Image Upload**: Multiple product images with Supabase Storage
+### 🎪 Core Marketplace Features
+| Feature | Description |
+|---------|-------------|
+| **🛍️ Product Listings** | Create, edit, and manage product listings with multiple images |
+| **📸 Image Management** | Bulk upload with WebP compression and lazy loading |
+| **🌐 Category Navigation** | Browse products by categories with smart filtering |
+| **🔍 Smart Search** | Real-time search with filters for price, condition, and location |
+| **❤️ Favorites** | Save products for later and track price changes |
+| **🏫 University Focus** | Filter by university and hostel locations |
 
-### Admin Features
-- 📊 **Analytics Dashboard**: Monitor platform usage and trends
-- 🛡️ **Content Moderation**: Review and manage flagged content
-- 🎯 **Product Promotion**: Feature products on the homepage
-- 👥 **User Management**: View and manage user accounts
+### 🗣️ Communication & Social
+| Feature | Description |
+|---------|-------------|
+| **💬 Real-time Chat** | Instant messaging between buyers and sellers |
+| **🔔 Push Notifications** | Get alerts for messages, price drops, and new listings |
+| **⭐ Rating System** | Build reputation through transaction ratings |
+| **👤 User Profiles** | Detailed profiles with verification badges |
+| **📱 SMS Verification** | Secure phone number verification via Twilio |
+
+### 🌙 UI/UX Enhancements
+| Feature | Description |
+|---------|-------------|
+| **🌙 Dark Mode** | System-aware theme with smooth transitions |
+| **📱 Mobile Optimized** | Touch gestures, swipe navigation, bottom nav bar |
+| **♾️ Accessibility** | WCAG compliant with screen reader support |
+| **🎨 Modern Design** | Clean UI with Tailwind CSS and shadcn/ui |
+| **⚡ Performance** | Lazy loading, code splitting, and optimized bundle |
+
+### 🔧 Seller Tools
+| Feature | Description |
+|---------|-------------|
+| **📦 Bulk Operations** | Manage multiple products at once |
+| **📈 Inventory Dashboard** | Analytics and insights for your listings |
+| **📊 CSV Import/Export** | Bulk upload products via spreadsheet |
+| **💰 Price Management** | Bulk price adjustments and promotions |
+| **📤 Draft Mode** | Save listings as drafts before publishing |
+
+### 🔐 Admin Features
+| Feature | Description |
+|---------|-------------|
+| **📊 Analytics Dashboard** | Platform metrics and user activity |
+| **🛡️ Content Moderation** | Review and manage flagged content |
+| **🎯 Product Promotion** | Feature products on homepage |
+| **👥 User Management** | Manage accounts and permissions |
+
+## 🛍️ Demo
+
+### Live Demo
+> 🌐 **Coming Soon** - Demo deployment in progress
+
+### Screenshots
+
+<details>
+<summary>Click to view screenshots</summary>
+
+#### Homepage
+- Hero section with featured products
+- Category grid for easy navigation
+- Featured products carousel
+
+#### Marketplace
+- Advanced filtering options
+- Grid/list view toggle
+- Real-time search results
+
+#### Product Details
+- Image gallery with zoom
+- Seller information
+- Similar products suggestions
+
+#### Mobile Experience
+- Bottom navigation bar
+- Swipeable product cards
+- Touch-optimized interface
+
+</details>
+
+### Test Credentials
+```
+Demo accounts will be available once the live demo is deployed.
+```
 
 ## 🛠️ Tech Stack
 
@@ -79,95 +155,167 @@ Fretio is a comprehensive marketplace platform designed specifically for student
 - **User Interaction Testing**: @testing-library/user-event
 - **Linting**: ESLint with TypeScript support
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-Before you begin, ensure you have:
+<table>
+<tr>
+<th>Requirement</th>
+<th>Version</th>
+<th>Download</th>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>18.0+</td>
+<td><a href="https://nodejs.org/">Download</a></td>
+</tr>
+<tr>
+<td>npm/bun</td>
+<td>9.0+ / 1.0+</td>
+<td>Included with Node.js / <a href="https://bun.sh/">Bun</a></td>
+</tr>
+<tr>
+<td>Git</td>
+<td>Latest</td>
+<td><a href="https://git-scm.com/">Download</a></td>
+</tr>
+<tr>
+<td>Supabase</td>
+<td>Account</td>
+<td><a href="https://supabase.com/">Sign up free</a></td>
+</tr>
+<tr>
+<td>Twilio (Optional)</td>
+<td>Account</td>
+<td><a href="https://www.twilio.com/try-twilio">Sign up</a></td>
+</tr>
+</table>
 
-- **Node.js** 18.0 or higher ([Download](https://nodejs.org/))
-- **npm** 9.0+ or **bun** 1.0+ package manager
-- **Git** for version control
-- **Supabase Account** ([Sign up free](https://supabase.com/))
-- **Twilio Account** (optional, for SMS verification)
+### 🌐 Installation Steps
 
-### Installation
-
-1. **Clone the repository**
+#### 1️⃣ Clone the Repository
 
 ```bash
+# Clone the repository
 git clone https://github.com/Coder-MayankSaini/fretio.git
+
+# Navigate to project directory
 cd fretio
 ```
 
-2. **Install dependencies**
+#### 2️⃣ Install Dependencies
 
 ```bash
+# Using npm (recommended)
 npm install
-# or using bun
+
+# OR using bun (faster)
 bun install
+
+# OR using yarn
+yarn install
 ```
 
-3. **Set up environment variables**
-
-Copy the example environment file and fill in your credentials:
+#### 3️⃣ Environment Setup
 
 ```bash
+# Copy environment template
 cp .env.example .env
+
+# Edit .env file with your credentials
 ```
 
-Edit `.env` with your configuration:
+<details>
+<summary>🔑 Environment Variables Reference</summary>
 
 ```env
-# Supabase Configuration (Required)
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+# === REQUIRED ===
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
-# SMS Configuration (Optional - for phone verification)
-VITE_TWILIO_ACCOUNT_SID=your_twilio_account_sid
-VITE_TWILIO_AUTH_TOKEN=your_twilio_auth_token
-VITE_TWILIO_PHONE_NUMBER=your_twilio_phone_number
+# === OPTIONAL ===
+# SMS Provider (use "mock" for development)
+VITE_SMS_PROVIDER=mock  # Options: mock, twilio
 
-# App Configuration
+# Twilio Configuration (if using Twilio)
+VITE_TWILIO_ACCOUNT_SID=your-account-sid
+VITE_TWILIO_AUTH_TOKEN=your-auth-token
+VITE_TWILIO_PHONE_NUMBER=+1234567890
+
+# Application URL
 VITE_APP_URL=http://localhost:8080
 ```
 
-4. **Set up Supabase database**
+</details>
 
-Run the SQL scripts in your Supabase SQL Editor in this order:
+#### 4️⃣ Database Setup
+
+<details>
+<summary>🗝️ Supabase Database Configuration</summary>
+
+1. **Create a Supabase Project**
+   - Go to [Supabase Dashboard](https://app.supabase.com/)
+   - Click "New Project"
+   - Fill in project details
+
+2. **Run SQL Scripts** (in order)
+   
+   Navigate to SQL Editor in Supabase Dashboard and run:
+   
+   ```sql
+   -- 1. Storage setup
+   -- Run: supabase/setup-storage.sql
+   
+   -- 2. Categories seed data
+   -- Run: supabase/seed-categories.sql
+   
+   -- 3. Universities & Hostels data  
+   -- Run: supabase/seed-universities-hostels.sql
+   
+   -- 4. Verify installation (optional)
+   -- Run: supabase/verify-setup.sql
+   ```
+
+3. **Configure Authentication**
+   - Enable Email provider in Authentication settings
+   - (Optional) Configure SMTP for email verification
+   - See [Email Setup Guide](./SETUP_EMAIL_SMTP.md) for details
+
+</details>
+
+#### 5️⃣ Start Development Server
 
 ```bash
-# 1. Set up storage buckets
-supabase/setup-storage.sql
-
-# 2. Seed categories
-supabase/seed-categories.sql
-
-# 3. Seed universities and hostels
-supabase/seed-universities-hostels.sql
-
-# 4. Verify setup (optional)
-supabase/verify-setup.sql
-```
-
-5. **Start the development server**
-
-```bash
+# Start the development server
 npm run dev
-# or
+
+# OR using bun
 bun run dev
 ```
 
-The application will be available at `http://localhost:8080`
+🎯 **Access the application at:** http://localhost:8080
 
-### Quick Start with Bun (Alternative)
+### 🎲 Quick Setup (Development Only)
 
-For faster installation and build times:
+For a quick development setup without full Supabase configuration:
 
 ```bash
-bun install
-bun run dev
+# 1. Clone and install
+git clone https://github.com/Coder-MayankSaini/fretio.git
+cd fretio
+npm install
+
+# 2. Use placeholder environment
+cp .env.example .env
+# Edit .env with placeholder values from SETUP_INSTRUCTIONS.md
+
+# 3. Start development
+npm run dev
 ```
+
+> ⚠️ **Note:** This will show the UI but database features won't work without proper Supabase setup.
 
 ## 📁 Project Structure
 

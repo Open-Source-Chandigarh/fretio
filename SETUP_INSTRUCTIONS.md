@@ -7,7 +7,8 @@ After running `npm install` and `npm run dev`, you may see a white screen instea
 The application requires Supabase configuration to run properly. Without valid Supabase credentials in the `.env` file, the app will crash on startup showing only a white screen.
 
 ## Quick Fix (Development Only)
-Add these placeholder values to your `.env` file to see the UI:
+1. Create a `.env` file in the root directory (copy from `.env.example` if available)
+2. Add these placeholder values to your `.env` file to see the UI:
 
 ```
 VITE_SUPABASE_URL=https://placeholder.supabase.co

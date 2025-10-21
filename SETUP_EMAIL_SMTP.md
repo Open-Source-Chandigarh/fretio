@@ -13,7 +13,7 @@
    - Copy the generated password
 
 3. **Configure in Supabase Dashboard**
-   - Go to https://supabase.com/dashboard/project/gokuiwmiommnvexcckvs/settings/auth
+   - Go to https://supabase.com/dashboard/project/YOUR_PROJECT_ID/settings/auth
    - Scroll to "SMTP Settings"
    - Enable "Custom SMTP"
    - Enter these settings:
