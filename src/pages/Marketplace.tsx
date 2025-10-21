@@ -10,7 +10,11 @@ import AdvancedSearchFilters from "@/components/AdvancedSearchFilters";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import searchHistoryService from "@/services/searchHistoryService";
-import { Search, Filter, Grid3X3, List, Plus, MapPin, Clock, TrendingUp } from "lucide-react";
+import { Search, Filter, Grid3X3, List, Plus, MapPin, Clock, TrendingUp, AlertCircle, RotateCcw } from "lucide-react";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import GridSkeleton from "@/components/Loading/GridSkeleton";
+import { useRetry } from "@/hooks/useRetry";
+import { useOfflineNotification } from "@/hooks/useOffline";
 
 interface Product {
   id: string;
@@ -48,6 +52,7 @@ const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -140,6 +145,9 @@ const Marketplace = () => {
       setLoading(false);
     }
   };
+  
+  // Retry functionality
+  const retryFetch = useRetry(fetchProducts, { maxRetries: 2 });
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -242,8 +250,9 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background">
+        <Header />
       
       <main id="main-content" className="container mx-auto px-4 py-6">
         {/* Header Section */}
@@ -399,15 +408,42 @@ const Marketplace = () => {
         {/* Products Grid */}
         <section aria-label="Product listings">
         {loading ? (
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-card rounded-xl border p-4 animate-pulse">
-                <div className="aspect-square bg-muted rounded-lg mb-4"></div>
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-6 bg-muted rounded mb-2"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-              </div>
-            ))}
+          <GridSkeleton 
+            count={8} 
+            viewMode={viewMode} 
+            columns={4}
+            className="mb-8"
+          />
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+              <AlertCircle className="h-8 w-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-900">Failed to Load Products</h3>
+            <p className="text-gray-600 mb-4 max-w-md mx-auto">
+              {error}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button 
+                variant="outline"
+                onClick={() => retryFetch.retry()}
+                disabled={retryFetch.state.isRetrying}
+                className="gap-2"
+              >
+                {retryFetch.state.isRetrying ? (
+                  <div className="animate-spin w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                ) : (
+                  <RotateCcw className="w-4 h-4" />
+                )}
+                {retryFetch.state.isRetrying ? 'Retrying...' : 'Try Again'}
+              </Button>
+              <Button 
+                variant="ghost"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Page
+              </Button>
+            </div>
           </div>
         ) : sortedProducts.length > 0 ? (
           <div className={`grid gap-6 ${
@@ -456,6 +492,7 @@ const Marketplace = () => {
         )}
       </main>
     </div>
+    </ErrorBoundary>
   );
 };
 
