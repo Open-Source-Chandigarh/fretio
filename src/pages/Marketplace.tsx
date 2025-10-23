@@ -7,10 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/ProductCard";
 import Header from "@/components/Header";
 import AdvancedSearchFilters from "@/components/AdvancedSearchFilters";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
+import EmptyState from "@/components/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import searchHistoryService from "@/services/searchHistoryService";
-import { Search, Filter, Grid3X3, List, Plus, MapPin, Clock, TrendingUp, AlertCircle, RotateCcw } from "lucide-react";
+import { Search, Filter, Grid3X3, List, Plus, MapPin, Clock, TrendingUp, AlertCircle, RotateCcw, PackageSearch, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import GridSkeleton from "@/components/Loading/GridSkeleton";
 import { useRetry } from "@/hooks/useRetry";
@@ -284,18 +287,27 @@ const Marketplace = () => {
           aria-label="Product search and filters"
         >
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <Input
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                aria-label="Search products"
-                type="search"
-              />
-            </div>
+            {/* Search with Autocomplete */}
+            <SearchAutocomplete
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search products..."
+              onSearch={(query) => {
+                // Track search in history
+                if (user) {
+                  searchHistoryService.addSearchQuery({
+                    user_id: user.id,
+                    query: query,
+                    filters: {
+                      category: selectedCategory,
+                      condition: selectedCondition,
+                      sortBy: sortBy,
+                    },
+                    results_count: filteredProducts.length
+                  });
+                }
+              }}
+            />
 
             {/* Category Filter */}
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -342,25 +354,64 @@ const Marketplace = () => {
             />
           </div>
 
-          {/* View Toggle & Active Filters */}
+          {/* Active Filter Chips */}
+          {(selectedCategory !== "All" || selectedCondition !== "All" || searchQuery) && (
+            <div className="flex flex-wrap items-center gap-2 pt-2">
+              <span className="text-sm text-muted-foreground font-medium">Active filters:</span>
+              {searchQuery && (
+                <Badge 
+                  variant="secondary" 
+                  className="pl-3 pr-2 py-1.5 flex items-center gap-2 hover:bg-muted cursor-pointer transition-colors"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <Search className="h-3 w-3" />
+                  "{searchQuery}"
+                  <X className="h-3 w-3 ml-1 hover:text-destructive" />
+                </Badge>
+              )}
+              {selectedCategory !== "All" && (
+                <Badge 
+                  variant="secondary" 
+                  className="pl-3 pr-2 py-1.5 flex items-center gap-2 hover:bg-muted cursor-pointer transition-colors"
+                  onClick={() => setSelectedCategory("All")}
+                >
+                  <Filter className="h-3 w-3" />
+                  {selectedCategory}
+                  <X className="h-3 w-3 ml-1 hover:text-destructive" />
+                </Badge>
+              )}
+              {selectedCondition !== "All" && (
+                <Badge 
+                  variant="secondary" 
+                  className="pl-3 pr-2 py-1.5 flex items-center gap-2 hover:bg-muted cursor-pointer transition-colors"
+                  onClick={() => setSelectedCondition("All")}
+                >
+                  <TrendingUp className="h-3 w-3" />
+                  {selectedCondition}
+                  <X className="h-3 w-3 ml-1 hover:text-destructive" />
+                </Badge>
+              )}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedCategory("All");
+                  setSelectedCondition("All");
+                }}
+                className="text-xs h-7"
+              >
+                Clear all
+              </Button>
+            </div>
+          )}
+
+          {/* View Toggle & Results Count */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <Badge variant="secondary">
-                {sortedProducts.length} results
+              <Badge variant="secondary" className="text-sm px-3 py-1">
+                {sortedProducts.length} {sortedProducts.length === 1 ? 'result' : 'results'}
               </Badge>
-              {(selectedCategory !== "All" || selectedCondition !== "All" || searchQuery) && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSelectedCategory("All");
-                    setSelectedCondition("All");
-                  }}
-                >
-                  Clear filters
-                </Button>
-              )}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -459,25 +510,43 @@ const Marketplace = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-              <Search className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No products found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your search or filter criteria
-            </p>
-            <Button 
-              variant="outline"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("All");
-                setSelectedCondition("All");
-              }}
-            >
-              Clear all filters
-            </Button>
-          </div>
+          <EmptyState
+            icon={PackageSearch}
+            title="No products found"
+            description={
+              searchQuery || selectedCategory !== "All" || selectedCondition !== "All"
+                ? "We couldn't find any products matching your filters. Try adjusting your search criteria or clear filters to see all products."
+                : "No products are currently available in your hostel. Be the first to list an item!"
+            }
+            variant="search"
+            action={{
+              label: searchQuery || selectedCategory !== "All" || selectedCondition !== "All" 
+                ? "Clear all filters" 
+                : "List an item",
+              onClick: () => {
+                if (searchQuery || selectedCategory !== "All" || selectedCondition !== "All") {
+                  setSearchQuery("");
+                  setSelectedCategory("All");
+                  setSelectedCondition("All");
+                } else {
+                  navigate('/create-product');
+                }
+              }
+            }}
+            secondaryAction={
+              searchQuery || selectedCategory !== "All" || selectedCondition !== "All"
+                ? {
+                    label: "Browse all products",
+                    onClick: () => {
+                      setSearchQuery("");
+                      setSelectedCategory("All");
+                      setSelectedCondition("All");
+                      setAdvancedFilters(null);
+                    }
+                  }
+                : undefined
+            }
+          />
         )}
         </section>
 

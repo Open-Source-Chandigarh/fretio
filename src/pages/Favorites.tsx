@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
+import EmptyState from '@/components/EmptyState';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Loader2 } from 'lucide-react';
+import { Heart, Loader2, HeartCrack } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 const Favorites = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -120,14 +123,20 @@ const Favorites = () => {
           </div>
 
           {favorites.length === 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>No favorites yet</CardTitle>
-                <CardDescription>
-                  Start browsing the marketplace and add items to your favorites to see them here.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <EmptyState
+              icon={HeartCrack}
+              title="No favorites yet"
+              description="Start exploring the marketplace and save items you love. Your favorite products will appear here for easy access."
+              variant="default"
+              action={{
+                label: "Browse Marketplace",
+                onClick: () => navigate('/marketplace')
+              }}
+              secondaryAction={{
+                label: "List an Item",
+                onClick: () => navigate('/create-product')
+              }}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {favorites.map((favorite) => {
