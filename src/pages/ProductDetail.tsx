@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import UserRating from "@/components/UserRating";
 import SimilarProducts from "@/components/SimilarProducts";
 import UsersAlsoViewed from "@/components/UsersAlsoViewed";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -85,6 +86,8 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -397,13 +400,29 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-muted">
+            <div 
+              className="relative aspect-square rounded-xl overflow-hidden bg-muted cursor-zoom-in group"
+              onClick={() => {
+                if (images.length > 0) {
+                  setLightboxIndex(currentImageIndex);
+                  setLightboxOpen(true);
+                }
+              }}
+            >
               {images.length > 0 ? (
-                <img
-                  src={images[currentImageIndex]}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={images[currentImageIndex]}
+                    alt={product.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {/* Zoom hint overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">
+                      Click to zoom
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Package className="h-24 w-24 text-muted-foreground" />
@@ -700,6 +719,20 @@ const ProductDetail = () => {
           </>
         )}
       </main>
+
+      {/* Image Lightbox */}
+      {images.length > 0 && (
+        <ImageLightbox
+          images={images}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          productTitle={product.title}
+          showThumbnails={images.length > 1}
+          allowZoom={true}
+          maxZoom={5}
+        />
+      )}
     </div>
   );
 };

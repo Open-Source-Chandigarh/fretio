@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import UserRating from "./UserRating";
 import LazyImage from "./LazyImage";
 
@@ -58,6 +59,7 @@ const ProductCard = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const handleMessageSeller = async () => {
     if (!user) {
@@ -275,11 +277,15 @@ const ProductCard = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleCardClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxOpen(true);
+            }}
             className="h-10 w-10 rounded-full bg-white/90 hover:bg-white backdrop-blur-md border border-slate-200 shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            aria-label={`View ${title} details`}
+            aria-label={`Quick view ${title}`}
+            title="Quick view images"
           >
-            <ExternalLink className="h-4 w-4 text-accent" />
+            <Eye className="h-4 w-4 text-accent" />
           </Button>
         </div>
 
@@ -374,6 +380,18 @@ const ProductCard = ({
           Message Seller
         </Button>
       </div>
+
+      {/* Image Lightbox for Quick View */}
+      <ImageLightbox
+        images={images}
+        initialIndex={currentImageIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        productTitle={title}
+        showThumbnails={images.length > 1}
+        allowZoom={true}
+        maxZoom={3}
+      />
     </article>
   );
 };
