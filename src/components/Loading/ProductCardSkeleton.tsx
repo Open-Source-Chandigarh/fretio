@@ -58,75 +58,89 @@ const ProductCardSkeleton: React.FC<ProductCardSkeletonProps> = ({
   }
 
   return (
-    <div
+    <article
       className={cn(
-        'bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden',
+        'group bg-card rounded-2xl border border-border/60 shadow-md hover:shadow-xl overflow-hidden',
+        'transition-all duration-300 hover:-translate-y-1',
         className
       )}
       role="status"
       aria-label="Loading product..."
+      aria-busy="true"
     >
-      {/* Image */}
-      <div className="relative aspect-square">
+      {/* Image Container - Enhanced with multiple action placeholders */}
+      <div className="relative aspect-square bg-muted overflow-hidden">
         <Skeleton className="w-full h-full rounded-t-2xl" />
         
-        {/* Views indicator */}
-        <div className="absolute bottom-3 left-3">
-          <Skeleton className="w-12 h-6 rounded-full" />
+        {/* Floating Action Buttons (matching enhanced ProductCard) */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <Skeleton shape="circle" className="w-9 h-9 backdrop-blur-sm" />
+          <Skeleton shape="circle" className="w-9 h-9 backdrop-blur-sm" />
+          <Skeleton shape="circle" className="w-9 h-9 backdrop-blur-sm" />
         </div>
 
-        {/* Rent badge placeholder */}
+        {/* Rent badge placeholder with pulse */}
         <div className="absolute top-3 left-3">
-          <Skeleton className="w-16 h-6 rounded" />
+          <Skeleton className="w-20 h-7 rounded-md animate-skeleton-pulse" />
         </div>
 
-        {/* Heart button placeholder */}
-        <div className="absolute top-3 right-3">
-          <Skeleton shape="circle" className="w-9 h-9" />
+        {/* Image navigation dots placeholder */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+          <Skeleton shape="circle" className="w-2 h-2" />
+          <Skeleton shape="circle" className="w-2 h-2" />
+          <Skeleton shape="circle" className="w-2 h-2" />
+        </div>
+
+        {/* Views indicator */}
+        <div className="absolute bottom-3 right-3">
+          <Skeleton className="w-14 h-6 rounded-full backdrop-blur-sm" />
         </div>
       </div>
 
       {/* Card Body */}
-      <div className="p-5 space-y-3">
-        {/* Category + Condition */}
-        <div className="flex items-center justify-between">
+      <div className="p-5 space-y-3.5">
+        {/* Category + Condition Badges */}
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-5 w-24 rounded-full" />
           <Skeleton className="h-5 w-20 rounded-full" />
-          <Skeleton className="h-5 w-16 rounded-full" />
         </div>
 
-        {/* Title */}
+        {/* Title - Two lines */}
         <div className="space-y-2">
           <Skeleton className="h-5 w-full" />
-          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-5 w-4/5" />
         </div>
 
-        {/* Price */}
-        <div className="flex items-baseline space-x-2">
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-4 w-16" />
+        {/* Price Section */}
+        <div className="flex items-baseline gap-2">
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-4 w-20" />
         </div>
 
-        {/* Seller Info */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-          <div className="flex items-center space-x-2">
+        {/* Seller Info Section */}
+        <div className="flex items-center justify-between pt-3 border-t border-border/40">
+          <div className="flex items-center gap-2.5">
             <AvatarSkeleton size="sm" />
-            <div className="space-y-1">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-3 w-12" /> {/* Rating */}
+            <div className="space-y-1.5">
+              <Skeleton className="h-4 w-24" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-14" /> {/* Rating stars */}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-1">
+          {/* Timestamp */}
+          <div className="flex items-center gap-1">
             <Skeleton className="h-3 w-3 rounded-full" /> {/* Clock icon */}
-            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-3 w-14" />
           </div>
         </div>
 
-        {/* Button */}
-        <ButtonSkeleton className="w-full" />
+        {/* CTA Button */}
+        <ButtonSkeleton className="w-full mt-2" />
       </div>
-    </div>
+    </article>
   );
 };
 

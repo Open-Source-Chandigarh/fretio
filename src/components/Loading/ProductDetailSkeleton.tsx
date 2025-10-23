@@ -10,9 +10,9 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('min-h-screen bg-background', className)}>
+    <div className={cn('min-h-screen bg-background', className)} role="status" aria-busy="true">
       {/* Header Placeholder */}
-      <div className="h-16 bg-white/60 backdrop-blur-md border-b border-gray-200">
+      <div className="h-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-5 flex items-center justify-between h-full">
           <Skeleton className="h-9 w-32" />
           <Skeleton className="h-9 w-9 rounded-full" />
@@ -21,26 +21,26 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
 
       <main className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-6 animate-fade-in-up stagger-1">
           <ButtonSkeleton size="sm" width={100} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Image Gallery */}
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in-up stagger-2">
             {/* Main Image */}
-            <div className="relative aspect-square bg-gray-50 rounded-2xl overflow-hidden">
+            <div className="relative aspect-square bg-muted rounded-2xl overflow-hidden">
               <Skeleton className="w-full h-full" />
               
               {/* Navigation Buttons */}
               <div className="absolute inset-0 flex items-center justify-between p-4">
-                <Skeleton shape="circle" className="w-10 h-10" />
-                <Skeleton shape="circle" className="w-10 h-10" />
+                <Skeleton shape="circle" className="w-10 h-10 backdrop-blur-sm" />
+                <Skeleton shape="circle" className="w-10 h-10 backdrop-blur-sm" />
               </div>
 
               {/* Image Counter */}
               <div className="absolute top-4 right-4">
-                <Skeleton className="w-12 h-6 rounded-full" />
+                <Skeleton className="w-12 h-6 rounded-full backdrop-blur-sm" />
               </div>
             </div>
 
@@ -48,7 +48,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Skeleton
-                  key={index}
+                  key={`thumb-${index}`}
                   className="flex-shrink-0 w-16 h-16 rounded-lg"
                 />
               ))}
@@ -56,7 +56,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in-up stagger-3">
             {/* Category & Status */}
             <div className="flex items-center justify-between">
               <Skeleton className="h-6 w-24 rounded-full" />
@@ -82,7 +82,7 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
             </div>
 
             {/* Seller Info */}
-            <div className="border rounded-xl p-6 space-y-4">
+            <div className="border border-border/60 bg-card/50 rounded-xl p-6 space-y-4">
               <Skeleton className="h-6 w-20" />
               
               <div className="flex items-center space-x-4">
@@ -110,12 +110,12 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
         </div>
 
         {/* Product Details Card */}
-        <div className="bg-card rounded-xl border p-6 mb-8 space-y-6">
+        <div className="bg-card rounded-xl border border-border/60 p-6 mb-8 space-y-6 animate-fade-in-up stagger-4">
           <Skeleton className="h-6 w-32" />
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="space-y-2">
+              <div key={`detail-${index}`} className="space-y-2">
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-5 w-20" />
               </div>
@@ -124,14 +124,18 @@ const ProductDetailSkeleton: React.FC<ProductDetailSkeletonProps> = ({
         </div>
 
         {/* Similar Products Section */}
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in-up stagger-5">
           <Skeleton className="h-7 w-40" />
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
-                key={index}
-                className="bg-card rounded-xl border overflow-hidden"
+                key={`similar-${index}`}
+                className={cn(
+                  'bg-card rounded-xl border border-border/60 overflow-hidden',
+                  'animate-fade-in-up',
+                  `stagger-${(index % 12) + 1}`
+                )}
               >
                 <Skeleton className="w-full aspect-square" />
                 <div className="p-4 space-y-2">

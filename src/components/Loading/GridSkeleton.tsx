@@ -27,6 +27,12 @@ const GridSkeleton: React.FC<GridSkeletonProps> = ({
         4: 'grid-cols-1',
       };
 
+  // Stagger class helper - cycles through stagger-1 to stagger-12
+  const getStaggerClass = (index: number) => {
+    const staggerIndex = (index % 12) + 1;
+    return `stagger-${staggerIndex}`;
+  };
+
   return (
     <div
       className={cn(
@@ -36,13 +42,16 @@ const GridSkeleton: React.FC<GridSkeletonProps> = ({
       )}
       role="status"
       aria-label={`Loading ${count} products...`}
+      aria-busy="true"
     >
       {Array.from({ length: count }).map((_, index) => (
         <ProductCardSkeleton 
-          key={index} 
+          key={`skeleton-${index}`}
           viewMode={viewMode}
-          className="animate-pulse"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className={cn(
+            'animate-fade-in-up',
+            getStaggerClass(index)
+          )}
         />
       ))}
     </div>

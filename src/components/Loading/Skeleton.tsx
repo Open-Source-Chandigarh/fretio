@@ -18,7 +18,8 @@ const Skeleton: React.FC<SkeletonProps> = ({
   style,
   ...props
 }) => {
-  const baseClasses = 'animate-pulse bg-gradient-to-r from-slate-200 via-slate-50 to-slate-200 bg-[length:200%_100%]';
+  // Enhanced base classes with shimmer animation
+  const baseClasses = 'animate-shimmer relative overflow-hidden';
   
   const shapeClasses = {
     rectangle: 'rounded-md',
@@ -27,10 +28,10 @@ const Skeleton: React.FC<SkeletonProps> = ({
   };
 
   const variantClasses = {
-    default: 'bg-slate-200',
-    text: 'bg-slate-200 h-4',
-    avatar: 'bg-slate-200 rounded-full',
-    button: 'bg-slate-200 rounded-md h-10',
+    default: 'bg-muted',
+    text: 'bg-muted h-4',
+    avatar: 'bg-muted rounded-full',
+    button: 'bg-muted rounded-md h-10',
   };
 
   const computedStyle = {
@@ -45,12 +46,12 @@ const Skeleton: React.FC<SkeletonProps> = ({
         baseClasses,
         shapeClasses[shape],
         variantClasses[variant],
-        'animate-shimmer',
         className
       )}
       style={computedStyle}
       role="status"
       aria-label="Loading..."
+      aria-busy="true"
       {...props}
     />
   );
