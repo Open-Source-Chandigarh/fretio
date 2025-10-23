@@ -148,25 +148,70 @@ All colors MUST be HSL. Focused on trust, community, and modern aesthetics.
 
 /* Custom animations */
 @layer components {
-  /* Shimmer animation for skeleton loading */
+  /* Enhanced shimmer animation for skeleton loading */
   @keyframes shimmer {
     0% {
-      background-position: -200px 0;
+      background-position: -468px 0;
     }
     100% {
-      background-position: calc(200px + 100%) 0;
+      background-position: 468px 0;
     }
   }
   
   .animate-shimmer {
-    animation: shimmer 1.2s ease-in-out infinite;
+    animation: shimmer 2s ease-in-out infinite;
     background: linear-gradient(
       90deg,
       hsl(var(--muted)) 0%,
-      hsl(var(--muted) / 0.8) 20%,
-      hsl(var(--muted) / 0.5) 60%,
-      hsl(var(--muted))
+      hsl(var(--muted) / 0.9) 20%,
+      hsl(var(--background)) 50%,
+      hsl(var(--muted) / 0.9) 80%,
+      hsl(var(--muted)) 100%
     );
-    background-size: 200px 100%;
+    background-size: 936px 100%;
   }
+  
+  /* Pulse animation for featured items */
+  @keyframes skeleton-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  
+  .animate-skeleton-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Staggered loading animations */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Staggered delays for grid items */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+  .stagger-6 { animation-delay: 0.3s; }
+  .stagger-7 { animation-delay: 0.35s; }
+  .stagger-8 { animation-delay: 0.4s; }
+  .stagger-9 { animation-delay: 0.45s; }
+  .stagger-10 { animation-delay: 0.5s; }
+  .stagger-11 { animation-delay: 0.55s; }
+  .stagger-12 { animation-delay: 0.6s; }
 }

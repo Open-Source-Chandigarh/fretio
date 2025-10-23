@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
+import GridSkeleton from '@/components/Loading/GridSkeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Loader2, HeartCrack } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -103,8 +104,12 @@ const Favorites = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center space-x-2 mb-6">
+              <Heart className="h-6 w-6 text-primary" />
+              <h1 className="text-3xl font-bold">My Favorites</h1>
+            </div>
+            <GridSkeleton count={8} viewMode="grid" columns={4} />
           </div>
         </main>
       </div>

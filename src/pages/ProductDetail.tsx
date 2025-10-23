@@ -10,6 +10,7 @@ import UserRating from "@/components/UserRating";
 import SimilarProducts from "@/components/SimilarProducts";
 import UsersAlsoViewed from "@/components/UsersAlsoViewed";
 import { ImageLightbox } from "@/components/ImageLightbox";
+import ProductDetailSkeleton from "@/components/Loading/ProductDetailSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -307,24 +308,7 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-6">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-muted rounded w-48"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="aspect-square bg-muted rounded-xl"></div>
-              <div className="space-y-4">
-                <div className="h-10 bg-muted rounded w-3/4"></div>
-                <div className="h-6 bg-muted rounded w-1/2"></div>
-                <div className="h-32 bg-muted rounded"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
